@@ -1,0 +1,15 @@
+{
+  "name": "neon-hatch-pet",
+  "version": "2.0.0",
+  "description": "Cyber pixel desktop pet and web pet prototype.",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "desktop": "electron .",
+    "start": "electron .",
+    "web": "python3 -m http.server 5173 --bind 127.0.0.1"
+  },
+  "devDependencies": {
+    "electron": "^39.2.7"
+  }
+}
