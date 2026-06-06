@@ -8,53 +8,32 @@
   </head>
   <body>
     <main class="pet-shell" id="petShell" aria-label="桌面宠物">
-      <section class="pet-card">
-        <div class="drag-handle" id="dragHandle" title="拖动宠物">
-          <span>NEON PET</span>
-          <strong id="topStatus">置顶</strong>
+      <canvas
+        id="desktopPetCanvas"
+        width="240"
+        height="220"
+        aria-label="桌面像素宠物，左键互动，拖动移动，右键打开菜单"
+      ></canvas>
+      <form class="name-editor is-hidden" id="nameEditor" aria-hidden="true">
+        <label class="name-editor__label" id="nameEditorLabel" for="nameEditorInput">
+          设置名称
+        </label>
+        <input
+          id="nameEditorInput"
+          class="name-editor__input"
+          maxlength="12"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <div class="name-editor__actions">
+          <button type="submit">确定</button>
+          <button type="button" id="nameEditorCancel">取消</button>
         </div>
-
-        <div class="canvas-stage">
-          <canvas id="desktopPetCanvas" width="240" height="220" aria-label="桌面像素宠物"></canvas>
-          <span class="tap-hint">点击宠物摸摸</span>
-        </div>
-
-        <div class="speech" id="speechBubble" aria-live="polite">我还是一颗蛋。点一下孵化，让我住到桌面上。</div>
-
-        <div class="compact-stats" aria-label="宠物状态">
-          <span id="petName">未孵化</span>
-          <span id="petMood">等待启动</span>
-        </div>
-
-        <div class="action-grid">
-          <button id="hatchBtn" type="button">孵化</button>
-          <button id="feedBtn" type="button" disabled>喂食</button>
-          <button id="playBtn" type="button" disabled>玩耍</button>
-          <button id="exploreBtn" type="button" disabled>探险</button>
-          <button id="petBtn" type="button" disabled>摸摸</button>
-          <button id="danceBtn" type="button" disabled>跳舞</button>
-          <button id="sleepBtn" type="button" disabled>睡觉</button>
-          <button id="cleanBtn" type="button" disabled>清洁</button>
-        </div>
-
-        <div class="mood-panel" aria-label="选择心情">
-          <span class="mood-title">选择你的心情</span>
-          <div class="mood-options" id="moodOptions">
-            <button class="mood-chip" type="button" data-mood="happy" disabled>开心</button>
-            <button class="mood-chip" type="button" data-mood="sad" disabled>伤心</button>
-            <button class="mood-chip" type="button" data-mood="anxious" disabled>焦虑</button>
-            <button class="mood-chip" type="button" data-mood="tired" disabled>累了</button>
-            <button class="mood-chip" type="button" data-mood="angry" disabled>生气</button>
-            <button class="mood-chip" type="button" data-mood="bored" disabled>无聊</button>
-            <button class="mood-chip" type="button" data-mood="lonely" disabled>孤单</button>
-            <button class="mood-chip" type="button" data-mood="excited" disabled>兴奋</button>
-            <button class="mood-chip" type="button" data-mood="calm" disabled>平静</button>
-            <button class="mood-chip" type="button" data-mood="stressed" disabled>压力</button>
-          </div>
-        </div>
-
-        <div class="hint">拖动顶部移动，右键打开菜单。</div>
-      </section>
+        <p class="name-editor__hint">回车保存，Esc 取消</p>
+      </form>
+      <div class="sr-only" id="desktopStatus" aria-live="polite">
+        我还是一颗蛋。点击或右键菜单可以孵化。
+      </div>
     </main>
 
     <script src="./desktop-pet.js"></script>

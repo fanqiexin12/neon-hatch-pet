@@ -24,6 +24,20 @@ Original prompt: 项目整体是赛博像素风格，宠物初始为一个蛋，
 - Verified the fix with Playwright Electron: initial egg state, hatch into a random pet, forced random action, scheduled random action after idle time, and re-hatch reset back to egg. Screenshots were generated under `output/desktop-pet`.
 - Replaced the desktop mood text input with 10 clickable mood choices: happy, sad, anxious, tired, angry, bored, lonely, excited, calm, and stressed. Each choice now maps to a specific reply, stat change, activity animation, and particle effect.
 - Verified the mood-choice UI with Playwright Electron: no desktop mood textbox remains, mood buttons are disabled before hatch and enabled after hatch, all 10 mood choices respond, and no console errors were reported. Screenshot generated at `output/desktop-pet/desktop-mood-options.png`.
+- Converted the desktop app into a pet-only transparent mode: removed the visible card, grid background, button panel, mood panel, stat pips, and text input so only the egg/pet canvas remains visible.
+- Moved desktop interactions into the native right-click menu and kept left-click as a quick action: click the egg to hatch, click a hatched pet to pet it, drag the pet body to move the window.
+- Verified pet-only mode with Playwright Electron: compact 280x260 window, no old UI nodes, transparent canvas corner alpha 0, click-to-hatch, command-driven feed/mood/reset interactions, and no console errors. Screenshot generated at `output/desktop-pet/desktop-pet-only.png`.
+- Added configurable desktop time announcements in the right-click menu: immediate announcement, saved interval choices, and saved format choices. Supported intervals are off, 5 minutes, 15 minutes, 30 minutes, 1 hour, and 2 hours; supported formats are HH:mm, HH:mm:ss, Chinese spoken style, and date + time.
+- Verified the clock feature with Playwright Electron: format switching, interval switching, manual announcement, automatic scheduled announcement through virtual time, menu-state reporting, and no console errors. Screenshot generated at `output/desktop-pet/desktop-clock.png`.
+- Added richer desktop feedback: mood choices now show a temporary text bubble and trigger more specific actions such as celebration, breathing, comfort, cooldown, hug, spark rush, and focus.
+- Added action-backed time announcements with extra particles and a visible time feedback bubble.
+- Added 3-second still-hover status details for the desktop pet, showing satiety, happiness, and energy directly above the transparent pet.
+- Added slow time-based stat drift for satiety, happiness, energy, and clean, plus configurable low-stat reminders for feed/play/sleep thresholds at 30%, 40%, 50%, 60%, or 70%.
+- Verified the new desktop behavior with Playwright Electron: mood feedback, time announcement action, hover status panel, threshold menu state, low-stat alert, stat decay, and no console errors. Screenshots generated at `output/desktop-pet/desktop-mood-feedback.png`, `output/desktop-pet/desktop-hover-status.png`, and `output/desktop-pet/desktop-care-alert.png`.
+- Added relationship settings for the desktop pet: custom pet name, custom owner name, owner-addressed interaction replies, manual "call owner", and randomized periodic owner calls.
+- Added right-click menu controls for owner call interval: off, 2 minutes, 5 minutes, 10 minutes, or 30 minutes.
+- Replaced the Electron `window.prompt` naming flow with an in-pet pixel input panel, so right-click "pet name" and "owner title" menu actions can be edited reliably inside the transparent desktop window.
+- Verified the naming panel with Playwright Electron: owner title edit, hatch, pet name edit, Enter save, Escape cancel, persisted public state, and no console errors. Screenshot generated at `output/desktop-pet/desktop-name-editor.png`.
 
 ## TODO
 

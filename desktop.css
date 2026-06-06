@@ -1,11 +1,6 @@
 :root {
   color-scheme: dark;
-  --text: #ecfbff;
-  --muted: #8bb1bd;
   --cyan: #61fff4;
-  --pink: #ff35d4;
-  --yellow: #ffe66a;
-  --green: #82ff8f;
   font-family: "Courier New", "Menlo", "Monaco", monospace;
 }
 
@@ -23,188 +18,118 @@ body {
   user-select: none;
 }
 
-button,
-input {
-  font: inherit;
-}
-
-button {
-  border: 1px solid rgba(97, 255, 244, 0.72);
-  background: linear-gradient(135deg, rgba(97, 255, 244, 0.2), rgba(255, 53, 212, 0.18));
-  color: var(--text);
-  min-height: 34px;
-  cursor: pointer;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  box-shadow: 0 0 16px rgba(97, 255, 244, 0.24);
-}
-
-button:hover:not(:disabled) {
-  border-color: var(--pink);
-  filter: brightness(1.15);
-}
-
-button:disabled {
-  opacity: 0.42;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-input {
-  min-width: 0;
-  border: 1px solid rgba(97, 255, 244, 0.36);
-  background: rgba(4, 8, 16, 0.72);
-  color: var(--text);
-  padding: 0.55rem 0.6rem;
-  outline: none;
+body {
+  display: grid;
+  place-items: center;
 }
 
 .pet-shell {
+  position: relative;
   width: 100%;
   height: 100%;
   display: grid;
-  place-items: start center;
-  padding: 12px;
-}
-
-.pet-card {
-  width: 336px;
-  border: 1px solid rgba(97, 255, 244, 0.34);
-  background:
-    linear-gradient(135deg, rgba(7, 12, 25, 0.54), rgba(28, 8, 36, 0.42)),
-    rgba(2, 5, 13, 0.32);
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.34), inset 0 0 32px rgba(97, 255, 244, 0.08);
-  backdrop-filter: blur(12px);
-  padding: 10px;
+  place-items: center;
+  background: transparent;
   pointer-events: auto;
-}
-
-.drag-handle {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  min-height: 28px;
-  color: var(--cyan);
-  letter-spacing: 0.18em;
-  font-size: 0.78rem;
-  cursor: grab;
-}
-
-.drag-handle:active {
-  cursor: grabbing;
-}
-
-.drag-handle strong {
-  color: var(--yellow);
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
-}
-
-.canvas-stage {
-  position: relative;
 }
 
 #desktopPetCanvas {
   display: block;
   width: 100%;
+  max-width: 260px;
   height: auto;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
-  filter: drop-shadow(0 0 18px rgba(97, 255, 244, 0.28));
-  cursor: pointer;
+  cursor: grab;
 }
 
-.tap-hint {
+#desktopPetCanvas:active {
+  cursor: grabbing;
+}
+
+.name-editor {
   position: absolute;
-  right: 8px;
-  bottom: 8px;
-  color: rgba(255, 230, 106, 0.72);
-  font-size: 0.68rem;
-  letter-spacing: 0.08em;
-  pointer-events: none;
+  left: 50%;
+  top: 10px;
+  z-index: 5;
+  width: min(248px, calc(100% - 16px));
+  transform: translateX(-50%);
+  padding: 10px;
+  border: 2px solid var(--cyan);
+  background: rgba(9, 17, 30, 0.94);
+  box-shadow: 4px 4px 0 rgba(255, 53, 212, 0.35);
+  color: #ecfbff;
+  pointer-events: auto;
+  user-select: text;
 }
 
-.speech {
-  border: 1px solid rgba(97, 255, 244, 0.38);
-  background: rgba(5, 10, 20, 0.78);
-  color: var(--text);
-  line-height: 1.5;
-  min-height: 58px;
-  padding: 0.7rem;
-  margin-top: 8px;
+.name-editor.is-hidden {
+  display: none;
 }
 
-.speech.pulse {
-  border-color: var(--pink);
-}
-
-.compact-stats {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  color: var(--yellow);
-  margin: 8px 0;
-  font-size: 0.82rem;
-}
-
-.compact-stats span:last-child {
-  color: var(--muted);
-}
-
-.action-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
-}
-
-.mood-panel {
-  border: 1px solid rgba(97, 255, 244, 0.24);
-  background: rgba(5, 10, 20, 0.42);
-  margin-top: 6px;
-  padding: 6px;
-}
-
-.mood-title {
+.name-editor__label {
   display: block;
-  color: var(--yellow);
-  font-size: 0.68rem;
-  letter-spacing: 0.12em;
-  margin-bottom: 5px;
+  margin-bottom: 7px;
+  color: #61fff4;
+  font-size: 12px;
+  font-weight: 700;
 }
 
-.mood-options {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 5px;
+.name-editor__input {
+  width: 100%;
+  height: 32px;
+  border: 2px solid rgba(97, 255, 244, 0.75);
+  border-radius: 0;
+  background: rgba(236, 251, 255, 0.08);
+  color: #ffffff;
+  outline: none;
+  padding: 5px 7px;
+  font: 14px "PingFang SC", "Microsoft YaHei", "Courier New", monospace;
+  user-select: text;
 }
 
-.mood-chip {
-  min-height: 28px;
-  padding: 0 2px;
-  font-size: 0.7rem;
-  letter-spacing: 0.04em;
-  text-transform: none;
+.name-editor__input:focus {
+  border-color: #ffe66a;
+  box-shadow: 0 0 0 2px rgba(255, 230, 106, 0.22);
 }
 
-.mood-chip[data-mood="happy"],
-.mood-chip[data-mood="excited"] {
-  border-color: rgba(130, 255, 143, 0.72);
-}
-
-.mood-chip[data-mood="sad"],
-.mood-chip[data-mood="lonely"] {
-  border-color: rgba(97, 255, 244, 0.56);
-}
-
-.mood-chip[data-mood="angry"],
-.mood-chip[data-mood="stressed"] {
-  border-color: rgba(255, 53, 212, 0.68);
-}
-
-.hint {
-  color: rgba(236, 251, 255, 0.48);
-  font-size: 0.72rem;
+.name-editor__actions {
+  display: flex;
+  gap: 8px;
   margin-top: 8px;
-  text-align: center;
+}
+
+.name-editor__actions button {
+  flex: 1;
+  height: 26px;
+  border: 2px solid rgba(97, 255, 244, 0.72);
+  border-radius: 0;
+  background: rgba(97, 255, 244, 0.12);
+  color: #ecfbff;
+  cursor: pointer;
+  font: 12px "PingFang SC", "Microsoft YaHei", "Courier New", monospace;
+}
+
+.name-editor__actions button:hover,
+.name-editor__actions button:focus {
+  border-color: #ff35d4;
+  color: #ffffff;
+}
+
+.name-editor__hint {
+  margin: 7px 0 0;
+  color: rgba(236, 251, 255, 0.72);
+  font-size: 10px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }

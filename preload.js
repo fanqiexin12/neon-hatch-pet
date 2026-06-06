@@ -10,11 +10,13 @@ contextBridge.exposeInMainWorld("desktopPet", {
   resetPosition() {
     return ipcRenderer.invoke("pet-window:reset-position");
   },
-  showContextMenu() {
-    ipcRenderer.send("pet-window:context-menu");
+  showContextMenu(menuState) {
+    ipcRenderer.send("pet-window:context-menu", menuState);
+  },
+  onCommand(callback) {
+    ipcRenderer.on("desktop-pet:command", (_event, payload) => callback(payload));
   },
   onTopChanged(callback) {
     ipcRenderer.on("pet-window:top-changed", (_event, value) => callback(value));
   },
 });
-
