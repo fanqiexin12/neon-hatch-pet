@@ -36,6 +36,14 @@ const OWNER_CALL_INTERVAL_MENU = [
   ["30 分钟", 30 * 60 * 1000],
 ];
 
+const CHECK_IN_INTERVAL_MENU = [
+  ["关闭", 0],
+  ["10 分钟", 10 * 60 * 1000],
+  ["20 分钟", 20 * 60 * 1000],
+  ["30 分钟", 30 * 60 * 1000],
+  ["1 小时", 60 * 60 * 1000],
+];
+
 function createPetWindow() {
   const { workArea } = screen.getPrimaryDisplay();
   const width = 280;
@@ -134,6 +142,7 @@ function buildPetMenu(win, menuState) {
   const clock = menuState.clock || {};
   const care = menuState.care || {};
   const ownerCall = menuState.ownerCall || {};
+  const checkIn = menuState.checkIn || {};
   const clickLabel = hatching ? "孵化中..." : hatched ? "摸摸宠物" : "孵化";
   const clickCommand = hatched ? "pet" : "hatch";
 
@@ -221,6 +230,42 @@ function buildPetMenu(win, menuState) {
     },
   ];
 
+  const checkInInterval = Number(checkIn.intervalMs ?? 20 * 60 * 1000);
+  const checkInIntervalSubmenu = CHECK_IN_INTERVAL_MENU.map(([label, value]) => ({
+    label,
+    type: "radio",
+    checked: checkInInterval === value,
+    click: () => sendPetCommand(win, "checkInInterval", value),
+  }));
+  const pendingChoiceLabel = checkIn.pendingReminder?.choiceKey
+    ? ({
+        work: "工作",
+        read: "看书",
+        study: "学习",
+        fun: "娱乐",
+        rest: "休息",
+        idle: "发呆",
+      })[checkIn.pendingReminder.choiceKey] || checkIn.pendingReminder.choiceKey
+    : "";
+
+  const companionSubmenu = [
+    {
+      label: "问我现在在干嘛",
+      enabled: hatched,
+      click: () => sendPetCommand(win, "startCheckIn"),
+    },
+    {
+      label: `主动询问间隔：${checkIn.intervalLabel || "20 分钟"}`,
+      submenu: checkInIntervalSubmenu,
+    },
+    {
+      label: checkIn.pendingReminder
+        ? `待提醒：${pendingChoiceLabel}`
+        : "待提醒：无",
+      enabled: false,
+    },
+  ];
+
   const template = [
     {
       label: clickLabel,
@@ -240,6 +285,7 @@ function buildPetMenu(win, menuState) {
       { label: "清洁", click: () => sendPetCommand(win, "clean") },
       { label: "我的心情", submenu: moodSubmenu },
       { label: "关系设置", submenu: relationshipSubmenu },
+      { label: "陪伴询问", submenu: companionSubmenu },
       { label: clockLabel, submenu: clockSubmenu },
       { label: `低状态提醒：${careThreshold}%`, submenu: careThresholdSubmenu },
       { type: "separator" },

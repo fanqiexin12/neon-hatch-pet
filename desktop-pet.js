@@ -10,6 +10,11 @@ const ui = {
   nameEditorLabel: document.getElementById("nameEditorLabel"),
   nameEditorInput: document.getElementById("nameEditorInput"),
   nameEditorCancel: document.getElementById("nameEditorCancel"),
+  activityPrompt: document.getElementById("activityPrompt"),
+  activityPromptTitle: document.getElementById("activityPromptTitle"),
+  activityPromptBody: document.getElementById("activityPromptBody"),
+  activityPromptOptions: document.getElementById("activityPromptOptions"),
+  activityPromptClose: document.getElementById("activityPromptClose"),
 };
 
 const PETS = [
@@ -389,6 +394,117 @@ const OWNER_CALLS = [
   "{owner}，今天也请把我放在桌面边缘。",
 ];
 
+const DEFAULT_CHECK_IN_INTERVAL_MS = 20 * 60 * 1000;
+
+const CHECK_IN_INTERVALS = [
+  { label: "关闭", value: 0 },
+  { label: "10 分钟", value: 10 * 60 * 1000 },
+  { label: "20 分钟", value: 20 * 60 * 1000 },
+  { label: "30 分钟", value: 30 * 60 * 1000 },
+  { label: "1 小时", value: 60 * 60 * 1000 },
+];
+
+const DAY_PERIODS = [
+  { key: "morning", label: "上午", start: 5, end: 10, greeting: "上午好", nudge: "这一段很适合进入稳定节奏。" },
+  { key: "noon", label: "中午", start: 11, end: 13, greeting: "中午好", nudge: "别忘了吃饭和放松眼睛。" },
+  { key: "afternoon", label: "下午", start: 14, end: 17, greeting: "下午好", nudge: "下午的能量要分配得聪明一点。" },
+  { key: "evening", label: "晚上", start: 18, end: 22, greeting: "晚上好", nudge: "晚上适合收尾，也适合奖励自己。" },
+  { key: "night", label: "夜里", start: 23, end: 4, greeting: "夜深了", nudge: "如果还在忙，记得把休息也放进计划。" },
+];
+
+const CHECK_IN_CHOICES = {
+  work: {
+    label: "工作",
+    activity: "workBuddy",
+    action: "陪工作",
+    color: "#61fff4",
+    particle: "spark",
+    stats: { happiness: 4, bond: 5, energy: -3 },
+    reminderMs: 25 * 60 * 1000,
+    feedback(period) {
+      return `${period.label}工作模式收到。我会在旁边帮你守节奏，先专注一小段。`;
+    },
+    reminder() {
+      return "工作已经跑了一段时间，站起来伸展一下，眼睛也休息 20 秒。";
+    },
+  },
+  read: {
+    label: "看书",
+    activity: "readBuddy",
+    action: "陪看书",
+    color: "#ffe66a",
+    particle: "spark",
+    stats: { happiness: 5, bond: 6, energy: -2 },
+    reminderMs: 30 * 60 * 1000,
+    feedback(period) {
+      return `${period.label}看书很不错。我把翻页节拍调慢一点，陪你读进去。`;
+    },
+    reminder() {
+      return "读了一会儿啦，抬头看看远处，再回来继续会更稳。";
+    },
+  },
+  study: {
+    label: "学习",
+    activity: "studyBuddy",
+    action: "陪学习",
+    color: "#82ff8f",
+    particle: "spark",
+    stats: { happiness: 6, bond: 7, energy: -4 },
+    reminderMs: 25 * 60 * 1000,
+    feedback(period) {
+      return `${period.label}学习模式开启。先抓一个小知识点，不用一次吞掉整章。`;
+    },
+    reminder() {
+      return "学习计时到一格了。整理一下刚才的重点，再继续下一小段。";
+    },
+  },
+  fun: {
+    label: "娱乐",
+    activity: "funBuddy",
+    action: "陪放松",
+    color: "#ff35d4",
+    particle: "note",
+    stats: { happiness: 11, bond: 4, energy: -2 },
+    reminderMs: 20 * 60 * 1000,
+    feedback(period) {
+      return `${period.label}娱乐许可通过。放松也要认真享受，我给你点亮小灯。`;
+    },
+    reminder() {
+      return "娱乐时间跑了一会儿，要不要喝口水，顺便看看还想继续多久？";
+    },
+  },
+  rest: {
+    label: "休息",
+    activity: "restBuddy",
+    action: "陪休息",
+    color: "#61fff4",
+    particle: "sleep",
+    stats: { happiness: 4, bond: 6, energy: 9 },
+    reminderMs: 12 * 60 * 1000,
+    feedback(period) {
+      return `${period.label}休息模式收到。你休息，我守着桌面边缘。`;
+    },
+    reminder() {
+      return "休息也完成一小格了。慢慢回来，别一下子猛冲。";
+    },
+  },
+  idle: {
+    label: "发呆",
+    activity: "idleBuddy",
+    action: "陪发呆",
+    color: "#ffe66a",
+    particle: "heart",
+    stats: { happiness: 5, bond: 8, energy: 2 },
+    reminderMs: 10 * 60 * 1000,
+    feedback(period) {
+      return `${period.label}发呆也算重启缓存。我陪你安静待一会儿。`;
+    },
+    reminder() {
+      return "发呆缓存刷新完一轮了。现在想继续放空，还是换个小动作？";
+    },
+  },
+};
+
 function pad2(value) {
   return String(value).padStart(2, "0");
 }
@@ -401,6 +517,20 @@ function randomOwnerCallDelay(intervalMs = DEFAULT_OWNER_CALL_INTERVAL_MS) {
   const interval = Number(intervalMs);
   if (interval <= 0) return 0;
   return interval * (0.75 + Math.random() * 0.5);
+}
+
+function randomCheckInDelay(intervalMs = DEFAULT_CHECK_IN_INTERVAL_MS) {
+  const interval = Number(intervalMs);
+  if (interval <= 0) return 0;
+  return interval * (0.7 + Math.random() * 0.6);
+}
+
+function getDayPeriod(date = new Date()) {
+  const hour = date.getHours();
+  return DAY_PERIODS.find((period) => {
+    if (period.start <= period.end) return hour >= period.start && hour <= period.end;
+    return hour >= period.start || hour <= period.end;
+  }) || DAY_PERIODS[0];
 }
 
 function defaultState() {
@@ -443,6 +573,15 @@ function defaultState() {
       nextInMs: randomOwnerCallDelay(DEFAULT_OWNER_CALL_INTERVAL_MS),
       lastText: "",
     },
+    checkIn: {
+      intervalMs: DEFAULT_CHECK_IN_INTERVAL_MS,
+      nextInMs: randomCheckInDelay(DEFAULT_CHECK_IN_INTERVAL_MS),
+      promptTimeLeftMs: 0,
+      promptPeriod: "",
+      pendingReminder: null,
+      lastChoice: "",
+      lastText: "",
+    },
     feedback: {
       title: "",
       text: "",
@@ -470,6 +609,15 @@ let hoverState = {
 let nameEditorState = {
   kind: "",
 };
+let activityPromptState = {
+  open: false,
+  periodKey: "",
+};
+let mouseGestureState = {
+  points: [],
+  cooldownMs: 0,
+  lastGesture: "",
+};
 
 function loadState() {
   try {
@@ -488,6 +636,7 @@ function loadState() {
       care: normalizeCare(parsed.care),
       identity: normalizeIdentity(parsed.identity),
       ownerCall: normalizeOwnerCall(parsed.ownerCall),
+      checkIn: normalizeCheckIn(parsed.checkIn),
       feedback: defaultState().feedback,
       nextAutoActionMs: randomAutoDelay(),
     };
@@ -557,6 +706,34 @@ function normalizeOwnerCall(ownerCall = {}) {
   };
 }
 
+function normalizeCheckIn(checkIn = {}) {
+  const defaults = defaultState().checkIn;
+  const interval = CHECK_IN_INTERVALS.some((item) => item.value === Number(checkIn.intervalMs))
+    ? Number(checkIn.intervalMs)
+    : defaults.intervalMs;
+
+  return {
+    ...defaults,
+    ...checkIn,
+    intervalMs: interval,
+    nextInMs: randomCheckInDelay(interval),
+    promptTimeLeftMs: 0,
+    promptPeriod: "",
+    pendingReminder: normalizeCheckInReminder(checkIn.pendingReminder),
+    lastChoice: checkIn.lastChoice || "",
+    lastText: checkIn.lastText || "",
+  };
+}
+
+function normalizeCheckInReminder(reminder) {
+  if (!reminder || !CHECK_IN_CHOICES[reminder.choiceKey]) return null;
+  return {
+    choiceKey: reminder.choiceKey,
+    timeLeftMs: Math.max(0, Number(reminder.timeLeftMs) || 0),
+    text: reminder.text || "",
+  };
+}
+
 function saveState() {
   const snapshot = {
     mode: state.mode,
@@ -582,6 +759,12 @@ function saveState() {
     ownerCall: {
       intervalMs: state.ownerCall.intervalMs,
       lastText: state.ownerCall.lastText,
+    },
+    checkIn: {
+      intervalMs: state.checkIn.intervalMs,
+      pendingReminder: state.checkIn.pendingReminder,
+      lastChoice: state.checkIn.lastChoice,
+      lastText: state.checkIn.lastText,
     },
     lastAction: state.lastAction,
   };
@@ -671,12 +854,18 @@ function speciesName() {
 function resetToEgg(message = "已经回到初始蛋。再点一次孵化，会随机出生一只新宠物。") {
   const previousIdentity = normalizeIdentity(state.identity);
   const previousOwnerCall = normalizeOwnerCall(state.ownerCall);
+  const previousCheckIn = normalizeCheckIn(state.checkIn);
   state = defaultState();
   state.identity.ownerName = previousIdentity.ownerName;
   state.identity.petName = "";
   state.ownerCall.intervalMs = previousOwnerCall.intervalMs;
   state.ownerCall.nextInMs = randomOwnerCallDelay(previousOwnerCall.intervalMs);
   state.ownerCall.lastText = previousOwnerCall.lastText;
+  state.checkIn.intervalMs = previousCheckIn.intervalMs;
+  state.checkIn.nextInMs = randomCheckInDelay(previousCheckIn.intervalMs);
+  state.checkIn.pendingReminder = null;
+  state.checkIn.lastChoice = previousCheckIn.lastChoice;
+  state.checkIn.lastText = previousCheckIn.lastText;
   state.message = message;
   state.lastAction = "等待孵化";
   particles = [];
@@ -712,6 +901,7 @@ function finishHatch() {
   };
   state.nextAutoActionMs = randomAutoDelay();
   state.ownerCall.nextInMs = randomOwnerCallDelay(state.ownerCall.intervalMs);
+  state.checkIn.nextInMs = randomCheckInDelay(state.checkIn.intervalMs);
   setActivity("happy", 2200);
   burst("spark", 8, 120, 70, "#ffe66a");
   say(`${pet.name} 入驻桌面：${pet.personality}。${ownerTitle()}，可以给我取个名字。`, "已入驻");
@@ -932,6 +1122,14 @@ function ownerCallIntervalLabel(intervalMs = state.ownerCall.intervalMs) {
   return OWNER_CALL_INTERVALS.find((item) => item.value === intervalMs)?.label || "自定义";
 }
 
+function checkInIntervalLabel(intervalMs = state.checkIn.intervalMs) {
+  return CHECK_IN_INTERVALS.find((item) => item.value === intervalMs)?.label || "自定义";
+}
+
+function getDayPeriodByKey(periodKey) {
+  return DAY_PERIODS.find((period) => period.key === periodKey) || getDayPeriod();
+}
+
 function announceTime(reason = "manual", date = new Date()) {
   if (!requirePet("报时")) return false;
   const current = formatClock(date);
@@ -1085,6 +1283,146 @@ function updateOwnerCall(dtMs) {
   triggerOwnerCall("auto");
 }
 
+function setCheckInInterval(intervalMs) {
+  const nextInterval = Number(intervalMs);
+  const supported = CHECK_IN_INTERVALS.some((item) => item.value === nextInterval);
+  if (!supported) {
+    say("这个主动询问间隔还不支持。", "询问设置");
+    return false;
+  }
+
+  state.checkIn.intervalMs = nextInterval;
+  state.checkIn.nextInMs = randomCheckInDelay(nextInterval);
+  const message = nextInterval > 0
+    ? `${ownerTitle()}，我会大约每 ${checkInIntervalLabel(nextInterval)} 问问你在做什么。`
+    : `${ownerTitle()}，我先不主动问你在做什么。`;
+  showFeedback(message, "询问设置", 4600, "check");
+  say(`${displayName()} ${message}`, "询问设置");
+  return true;
+}
+
+function openActivityPrompt(reason = "auto", periodKey = getDayPeriod().key) {
+  if (!requirePet("主动询问")) return false;
+  if (!ui.activityPrompt || !ui.activityPromptTitle || !ui.activityPromptBody || !ui.activityPromptOptions) {
+    say("活动询问面板没有加载成功。", "主动询问");
+    return false;
+  }
+
+  closeNameEditor();
+  const period = getDayPeriodByKey(periodKey);
+  activityPromptState.open = true;
+  activityPromptState.periodKey = period.key;
+  state.checkIn.promptTimeLeftMs = 22 * 1000;
+  state.checkIn.promptPeriod = period.key;
+  state.checkIn.nextInMs = randomCheckInDelay(state.checkIn.intervalMs);
+  setActivity("askOwner", 2600);
+  burst("spark", 5, 120, 72, "#ffe66a");
+
+  ui.activityPromptTitle.textContent = `${period.greeting}，${ownerTitle()}在做什么？`;
+  ui.activityPromptBody.textContent = `${period.nudge} 选一个，我陪你进入对应模式。`;
+  ui.activityPromptOptions.innerHTML = "";
+  Object.entries(CHECK_IN_CHOICES).forEach(([choiceKey, choice]) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = choice.label;
+    button.addEventListener("click", () => respondCheckIn(choiceKey));
+    ui.activityPromptOptions.appendChild(button);
+  });
+  ui.activityPrompt.classList.remove("is-hidden");
+  ui.activityPrompt.setAttribute("aria-hidden", "false");
+
+  const message = `${period.greeting}，${ownerTitle()}，现在在干嘛？`;
+  showFeedback(message, reason === "manual" ? "主动询问" : "小小巡问", 5200, "check");
+  say(`${displayName()} ${message}`, reason === "manual" ? "主动询问" : "小小巡问");
+  return true;
+}
+
+function closeActivityPrompt(reschedule = false) {
+  activityPromptState.open = false;
+  activityPromptState.periodKey = "";
+  state.checkIn.promptTimeLeftMs = 0;
+  state.checkIn.promptPeriod = "";
+  if (reschedule) {
+    state.checkIn.nextInMs = randomCheckInDelay(state.checkIn.intervalMs);
+  }
+  if (!ui.activityPrompt) return;
+  ui.activityPrompt.classList.add("is-hidden");
+  ui.activityPrompt.setAttribute("aria-hidden", "true");
+  if (ui.activityPromptOptions) ui.activityPromptOptions.innerHTML = "";
+}
+
+function respondCheckIn(choiceKey) {
+  if (!requirePet("主动询问")) return false;
+  const choice = CHECK_IN_CHOICES[choiceKey];
+  if (!choice) return false;
+
+  const period = getDayPeriodByKey(state.checkIn.promptPeriod || getDayPeriod().key);
+  closeActivityPrompt(false);
+  applyStatChanges(choice.stats);
+  setActivity(choice.activity, 3200);
+  burst(choice.particle, 7, 122, 76, choice.color);
+  const feedback = addressOwner(choice.feedback(period));
+  const reminder = addressOwner(choice.reminder(period));
+  state.checkIn.pendingReminder = {
+    choiceKey,
+    timeLeftMs: choice.reminderMs,
+    text: reminder,
+  };
+  state.checkIn.lastChoice = choiceKey;
+  state.checkIn.lastText = feedback;
+  state.checkIn.nextInMs = randomCheckInDelay(state.checkIn.intervalMs);
+  showFeedback(feedback, choice.action, 5600, "check");
+  say(`${displayName()} ${feedback}`, choice.action);
+  return true;
+}
+
+function updateCheckIn(dtMs) {
+  if (state.mode !== "hatched") return;
+
+  if (activityPromptState.open) {
+    state.checkIn.promptTimeLeftMs = Math.max(0, state.checkIn.promptTimeLeftMs - dtMs);
+    if (state.checkIn.promptTimeLeftMs <= 0) {
+      closeActivityPrompt(true);
+    }
+    return;
+  }
+
+  if (state.checkIn.pendingReminder) {
+    state.checkIn.pendingReminder.timeLeftMs = Math.max(0, state.checkIn.pendingReminder.timeLeftMs - dtMs);
+    if (state.checkIn.pendingReminder.timeLeftMs <= 0) {
+      if (state.activity.timeLeftMs > 0) {
+        state.checkIn.pendingReminder.timeLeftMs = 1500;
+      } else {
+        triggerCheckInReminder();
+      }
+    }
+  }
+
+  if (state.checkIn.intervalMs <= 0 || nameEditorState.kind) return;
+  state.checkIn.nextInMs -= dtMs;
+  if (state.checkIn.nextInMs > 0) return;
+
+  if (state.activity.timeLeftMs > 0) {
+    state.checkIn.nextInMs = Math.min(2000, state.checkIn.intervalMs);
+    return;
+  }
+
+  openActivityPrompt("auto");
+}
+
+function triggerCheckInReminder() {
+  const reminder = state.checkIn.pendingReminder;
+  if (!reminder) return false;
+  const choice = CHECK_IN_CHOICES[reminder.choiceKey] || CHECK_IN_CHOICES.rest;
+  const message = reminder.text || addressOwner(choice.reminder(getDayPeriod()));
+  state.checkIn.pendingReminder = null;
+  setActivity("breakReminder", 3300);
+  burst("spark", 7, 120, 70, choice.color);
+  showFeedback(message, "小提醒", 5600, "reminder");
+  say(`${displayName()} ${message}`, "小提醒");
+  return true;
+}
+
 function triggerAutoAction() {
   if (state.mode !== "hatched" || state.activity.timeLeftMs > 0) return false;
 
@@ -1101,6 +1439,9 @@ function triggerAutoAction() {
 
 function update(dtMs) {
   state.animationMs += dtMs;
+  if (mouseGestureState.cooldownMs > 0) {
+    mouseGestureState.cooldownMs = Math.max(0, mouseGestureState.cooldownMs - dtMs);
+  }
   if (state.feedback.timeLeftMs > 0) {
     state.feedback.timeLeftMs = Math.max(0, state.feedback.timeLeftMs - dtMs);
   }
@@ -1136,6 +1477,7 @@ function update(dtMs) {
     updateClock(dtMs);
     updateCareAlerts(dtMs);
     updateOwnerCall(dtMs);
+    updateCheckIn(dtMs);
 
     if (state.activity.timeLeftMs <= 0) {
       state.nextAutoActionMs -= dtMs;
@@ -1164,7 +1506,10 @@ function renderDom() {
   const callStatus = state.ownerCall.intervalMs > 0
     ? `呼唤主人：约 ${ownerCallIntervalLabel()} 一次`
     : "呼唤主人：关闭";
-  canvas.title = `${status}\n${state.message}\n${clockStatus}\n${careStatus}\n${callStatus}\n鼠标静止 3 秒显示详细状态；左键点击互动，拖动移动，右键打开菜单。`;
+  const checkInStatus = state.checkIn.intervalMs > 0
+    ? `主动询问：约 ${checkInIntervalLabel()} 一次`
+    : "主动询问：关闭";
+  canvas.title = `${status}\n${state.message}\n${clockStatus}\n${careStatus}\n${callStatus}\n${checkInStatus}\n鼠标静止 3 秒显示详细状态；左键点击互动，拖动移动，右键打开菜单。`;
 }
 
 function updateHoverState(dtMs) {
@@ -1361,6 +1706,14 @@ function getActivityBob(activity) {
   if (activity === "comfortSad") return Math.sin(state.animationMs / 560) * 1.5 + 3;
   if (activity === "hug") return Math.sin(state.animationMs / 220) * 3;
   if (activity === "callOwner") return -Math.abs(Math.sin(state.animationMs / 150)) * 6;
+  if (activity === "askOwner") return Math.sin(state.animationMs / 210) * 4;
+  if (activity === "workBuddy" || activity === "studyBuddy" || activity === "readBuddy") return Math.sin(state.animationMs / 420) * 2;
+  if (activity === "funBuddy") return Math.sin(state.animationMs / 95) * 7;
+  if (activity === "restBuddy" || activity === "idleBuddy") return Math.sin(state.animationMs / 560) * 2;
+  if (activity === "breakReminder") return Math.sin(state.animationMs / 130) * 5;
+  if (activity === "mouseJump") return -Math.abs(Math.sin(state.animationMs / 110)) * 14;
+  if (activity === "mouseDuck") return Math.abs(Math.sin(state.animationMs / 180)) * 4;
+  if (activity === "mouseSlide" || activity === "mouseZigzag" || activity === "mouseCircle") return Math.sin(state.animationMs / 95) * 5;
   if (activity === "vent") return Math.sin(state.animationMs / 58) * 5;
   if (activity === "focus") return Math.sin(state.animationMs / 380) * 2;
   if (activity === "time") return -Math.abs(Math.sin(state.animationMs / 130)) * 7;
@@ -1384,6 +1737,10 @@ function getActivityShift(activity) {
   if (activity === "vent") return Math.sin(state.animationMs / 42) * 5;
   if (activity === "time") return Math.sin(state.animationMs / 150) * 3;
   if (activity === "callOwner") return Math.sin(state.animationMs / 110) * 4;
+  if (activity === "mouseSlide") return Math.sin(state.animationMs / 80) * 10;
+  if (activity === "mouseZigzag") return Math.sin(state.animationMs / 48) * 8;
+  if (activity === "mouseCircle") return Math.sin(state.animationMs / 70) * 6;
+  if (activity === "funBuddy") return Math.sin(state.animationMs / 90) * 5;
   if (activity === "celebrate") return Math.sin(state.animationMs / 75) * 4;
   return 0;
 }
@@ -1396,6 +1753,8 @@ function getActivitySquish(activity) {
   if (activity === "comfortSad") return 2;
   if (activity === "hug") return Math.sin(state.animationMs / 180) * 1.5;
   if (activity === "callOwner") return Math.sin(state.animationMs / 160) * 1.5;
+  if (activity === "restBuddy" || activity === "idleBuddy" || activity === "mouseDuck") return 2;
+  if (activity === "breakReminder") return Math.sin(state.animationMs / 120) * 2;
   if (activity === "alertHungry" || activity === "alertPlay" || activity === "alertSleep") {
     return Math.sin(state.animationMs / 120) * 2;
   }
@@ -1479,6 +1838,78 @@ function drawActivityProps(activity, x, y, accent, spark) {
     px(x + 3, y - 28, 6, 6, "#ff35d4");
     px(x - 1, y - 22, 8, 8, "#ff35d4");
     drawTextLine(ownerTitle(), x - 22, y - 34, "#ffb8ec", 10, "800");
+  }
+  if (activity === "askOwner") {
+    const pulse = Math.sin(state.animationMs / 160) > 0;
+    drawPixelText("?", x - 4, y - 38, pulse ? "#ffe66a" : "#61fff4");
+    drawPixelText("NOW?", x - 18, y - 26, "#ffe66a");
+    px(x - 62, y + 30, 18, 8, accent);
+  }
+  if (activity === "workBuddy") {
+    drawPixelText("FOCUS", x - 22, y - 34, "#61fff4");
+    px(x + 50, y + 24, 24, 16, "#132d44");
+    px(x + 54, y + 28, 16, 8, "#61fff4");
+    px(x + 46, y + 44, 32, 4, "#ff35d4");
+  }
+  if (activity === "readBuddy") {
+    drawPixelText("READ", x - 14, y - 34, "#ffe66a");
+    px(x - 76, y + 42, 22, 18, "#ffe66a");
+    px(x - 65, y + 42, 2, 18, "#132d44");
+    px(x - 73, y + 47, 6, 2, "#132d44");
+    px(x - 61, y + 47, 6, 2, "#132d44");
+  }
+  if (activity === "studyBuddy") {
+    drawPixelText("LEARN", x - 18, y - 34, "#82ff8f");
+    px(x + 54, y + 24, 22, 24, "#82ff8f");
+    px(x + 58, y + 29, 14, 2, "#132d44");
+    px(x + 58, y + 36, 14, 2, "#132d44");
+  }
+  if (activity === "funBuddy") {
+    drawPixelText("FUN", x - 10, y - 34, "#ff35d4");
+    px(x - 72, y + 28, 22, 14, "#ff35d4");
+    px(x - 68, y + 32, 4, 4, "#ecfbff");
+    px(x - 56, y + 32, 4, 4, "#ffe66a");
+    drawPixelText("♪", x + 58, y + 12, "#82ff8f");
+  }
+  if (activity === "restBuddy" || activity === "idleBuddy") {
+    drawPixelText(activity === "restBuddy" ? "REST" : "IDLE", x - 14, y - 34, "#61fff4");
+    drawPixelText("Z", x + 52, y + 8, "#61fff4");
+    px(x - 60, y + 34, 18, 8, accent);
+  }
+  if (activity === "breakReminder") {
+    drawPixelText("BREAK", x - 18, y - 34, "#ffe66a");
+    px(x - 72, y + 28, 16, 16, "#ffe66a");
+    px(x - 68, y + 32, 8, 8, "#132d44");
+    px(x + 56, y + 24, 12, 26, "#61fff4");
+  }
+  if (activity === "mouseSlide") {
+    drawPixelText("SWIPE", x - 18, y - 34, "#61fff4");
+    px(x - 82, y + 42, 26, 3, "#61fff4");
+    px(x + 56, y + 42, 26, 3, "#61fff4");
+  }
+  if (activity === "mouseJump") {
+    drawPixelText("UP!", x - 10, y - 34, "#ffe66a");
+    px(x - 44, y + 104, 18, 4, "rgba(255,230,106,0.35)");
+    px(x + 26, y + 104, 18, 4, "rgba(255,230,106,0.35)");
+  }
+  if (activity === "mouseDuck") {
+    drawPixelText("LOW", x - 10, y - 34, "#82ff8f");
+    px(x - 70, y + 92, 28, 4, "rgba(130,255,143,0.36)");
+    px(x + 42, y + 92, 28, 4, "rgba(130,255,143,0.36)");
+  }
+  if (activity === "mouseZigzag") {
+    drawPixelText("ZIG", x - 10, y - 34, "#ff35d4");
+    px(x - 76, y + 20, 18, 3, "#ff35d4");
+    px(x - 62, y + 27, 18, 3, "#ffe66a");
+    px(x + 52, y + 20, 18, 3, "#ff35d4");
+    px(x + 44, y + 27, 18, 3, "#ffe66a");
+  }
+  if (activity === "mouseCircle") {
+    drawPixelText("LOOP", x - 14, y - 34, "#82ff8f");
+    px(x - 72, y + 22, 28, 4, "#82ff8f");
+    px(x - 72, y + 22, 4, 24, "#82ff8f");
+    px(x - 48, y + 22, 4, 24, "#82ff8f");
+    px(x - 72, y + 42, 28, 4, "#82ff8f");
   }
   if (activity === "sparkRush") {
     drawPixelText("BOOST", x - 18, y - 34, "#82ff8f");
@@ -1597,6 +2028,9 @@ function drawFeedbackBubble() {
     care: "#82ff8f",
     call: "#ffb8ec",
     name: "#82ff8f",
+    check: "#ffe66a",
+    reminder: "#ffe66a",
+    mouse: "#61fff4",
     speech: "#61fff4",
   };
   const border = colors[state.feedback.variant] || colors.speech;
@@ -1673,6 +2107,10 @@ function beginDrag(event) {
 
 function moveDrag(event) {
   updateHoverPointer(event);
+  if (!dragStart) {
+    recordMouseGesture(event);
+  }
+  
   if (!dragStart) return;
   const delta = {
     x: event.screenX - dragStart.x,
@@ -1726,6 +2164,107 @@ function updateHoverPointer(event) {
   hoverState.show = false;
 }
 
+function recordMouseGesture(event) {
+  if (state.mode !== "hatched" || dragStart || nameEditorState.kind || activityPromptState.open) return;
+  if (mouseGestureState.cooldownMs > 0) return;
+
+  const now = performance.now();
+  mouseGestureState.points.push({ x: event.offsetX, y: event.offsetY, t: now });
+  mouseGestureState.points = mouseGestureState.points.filter((point) => now - point.t <= 900).slice(-18);
+  const gesture = classifyMouseGesture(mouseGestureState.points);
+  if (!gesture) return;
+
+  triggerMouseGesture(gesture);
+  mouseGestureState.points = [];
+  mouseGestureState.cooldownMs = 2200;
+}
+
+function classifyMouseGesture(points) {
+  if (points.length < 5) return "";
+  const first = points[0];
+  const last = points[points.length - 1];
+  const dx = last.x - first.x;
+  const dy = last.y - first.y;
+  const absDx = Math.abs(dx);
+  const absDy = Math.abs(dy);
+  const minX = Math.min(...points.map((point) => point.x));
+  const maxX = Math.max(...points.map((point) => point.x));
+  const minY = Math.min(...points.map((point) => point.y));
+  const maxY = Math.max(...points.map((point) => point.y));
+  const width = maxX - minX;
+  const height = maxY - minY;
+  let pathLength = 0;
+  let xTurns = 0;
+  let previousXSign = 0;
+
+  for (let index = 1; index < points.length; index += 1) {
+    const stepX = points[index].x - points[index - 1].x;
+    const stepY = points[index].y - points[index - 1].y;
+    pathLength += Math.hypot(stepX, stepY);
+    const xSign = Math.sign(stepX);
+    if (xSign && previousXSign && xSign !== previousXSign) xTurns += 1;
+    if (xSign) previousXSign = xSign;
+  }
+
+  const directDistance = Math.hypot(dx, dy);
+  if (pathLength < 70) return "";
+  if (pathLength > 155 && directDistance < 46 && width > 34 && height > 28) return "circle";
+  if (xTurns >= 3 && width > 50) return "zigzag";
+  if (absDx > 64 && absDx > absDy * 1.35) return dx > 0 ? "right" : "left";
+  if (absDy > 56 && absDy > absDx * 1.25) return dy < 0 ? "up" : "down";
+  return "";
+}
+
+function triggerMouseGesture(kind) {
+  if (state.mode !== "hatched") return false;
+  const gesture = {
+    left: {
+      activity: "mouseSlide",
+      title: "左滑",
+      text: `${ownerTitle()}，你往左划了一道光，我也跟着滑过去。`,
+      color: "#61fff4",
+    },
+    right: {
+      activity: "mouseSlide",
+      title: "右滑",
+      text: `${ownerTitle()}，右滑信号收到，我的小尾巴追上来了。`,
+      color: "#61fff4",
+    },
+    up: {
+      activity: "mouseJump",
+      title: "上滑",
+      text: `${ownerTitle()}，你往上一划，我也跳一下给你看。`,
+      color: "#ffe66a",
+    },
+    down: {
+      activity: "mouseDuck",
+      title: "下滑",
+      text: `${ownerTitle()}，下滑收到，我趴低一点，像素伏地。`,
+      color: "#82ff8f",
+    },
+    zigzag: {
+      activity: "mouseZigzag",
+      title: "折线",
+      text: `${ownerTitle()}，这条折线像小闪电，我被你晃醒了。`,
+      color: "#ff35d4",
+    },
+    circle: {
+      activity: "mouseCircle",
+      title: "绕圈",
+      text: `${ownerTitle()}，你画了个圈，我差点开始转圈巡航。`,
+      color: "#82ff8f",
+    },
+  }[kind];
+  if (!gesture) return false;
+
+  mouseGestureState.lastGesture = kind;
+  setActivity(gesture.activity, 2100);
+  burst("spark", 5, 120, 78, gesture.color);
+  showFeedback(gesture.text, gesture.title, 3800, "mouse");
+  say(`${displayName()} ${gesture.text}`, gesture.title);
+  return true;
+}
+
 function handlePetClick() {
   if (state.mode === "egg") {
     hatchPet();
@@ -1777,6 +2316,26 @@ function getPublicState() {
       nextInMs: Math.max(0, Math.round(state.ownerCall.nextInMs)),
       lastText: state.ownerCall.lastText,
     },
+    checkIn: {
+      intervalMs: state.checkIn.intervalMs,
+      intervalLabel: checkInIntervalLabel(),
+      nextInMs: Math.max(0, Math.round(state.checkIn.nextInMs)),
+      promptOpen: activityPromptState.open,
+      promptPeriod: state.checkIn.promptPeriod,
+      pendingReminder: state.checkIn.pendingReminder
+        ? {
+            choiceKey: state.checkIn.pendingReminder.choiceKey,
+            timeLeftMs: Math.round(state.checkIn.pendingReminder.timeLeftMs),
+            text: state.checkIn.pendingReminder.text,
+          }
+        : null,
+      lastChoice: state.checkIn.lastChoice,
+      lastText: state.checkIn.lastText,
+    },
+    mouseGesture: {
+      lastGesture: mouseGestureState.lastGesture,
+      cooldownMs: Math.round(mouseGestureState.cooldownMs),
+    },
     feedback: {
       title: state.feedback.title,
       text: state.feedback.text,
@@ -1802,6 +2361,7 @@ function getMenuState() {
     clock: publicState.clock,
     care: publicState.care,
     ownerCall: publicState.ownerCall,
+    checkIn: publicState.checkIn,
   };
 }
 
@@ -1820,6 +2380,7 @@ function runDesktopCommand(command, value) {
     promptPetName,
     promptOwnerName,
     callOwner: () => triggerOwnerCall("manual"),
+    startCheckIn: () => openActivityPrompt("manual"),
   };
 
   if (command === "mood") {
@@ -1836,6 +2397,12 @@ function runDesktopCommand(command, value) {
     setOwnerName(value);
   } else if (command === "ownerCallInterval") {
     setOwnerCallInterval(value);
+  } else if (command === "checkInInterval") {
+    setCheckInInterval(value);
+  } else if (command === "checkInChoice") {
+    respondCheckIn(value);
+  } else if (command === "mouseGesture") {
+    triggerMouseGesture(value);
   } else if (handlers[command]) {
     handlers[command]();
   } else {
@@ -1882,6 +2449,61 @@ window.force_desktop_pet_owner_call = () => {
     lastAction: state.lastAction,
     message: state.message,
     ownerCall: getPublicState().ownerCall,
+    feedback: getPublicState().feedback,
+  });
+};
+
+window.force_desktop_pet_check_in = (periodKey = getDayPeriod().key) => {
+  state.activity.timeLeftMs = 0;
+  closeActivityPrompt(false);
+  const ok = openActivityPrompt("manual", periodKey);
+  renderDom();
+  render();
+  return JSON.stringify({
+    ok,
+    mode: state.mode,
+    activity: state.activity.kind,
+    lastAction: state.lastAction,
+    message: state.message,
+    checkIn: getPublicState().checkIn,
+    feedback: getPublicState().feedback,
+  });
+};
+
+window.choose_desktop_pet_check_in = (choiceKey) => {
+  return JSON.stringify(runDesktopCommand("checkInChoice", choiceKey));
+};
+
+window.force_desktop_pet_check_in_reminder = () => {
+  state.activity.timeLeftMs = 0;
+  if (state.checkIn.pendingReminder) {
+    state.checkIn.pendingReminder.timeLeftMs = 0;
+  }
+  const ok = triggerCheckInReminder();
+  renderDom();
+  render();
+  return JSON.stringify({
+    ok,
+    mode: state.mode,
+    activity: state.activity.kind,
+    lastAction: state.lastAction,
+    message: state.message,
+    checkIn: getPublicState().checkIn,
+    feedback: getPublicState().feedback,
+  });
+};
+
+window.force_desktop_pet_mouse_gesture = (kind) => {
+  const ok = triggerMouseGesture(kind);
+  renderDom();
+  render();
+  return JSON.stringify({
+    ok,
+    mode: state.mode,
+    activity: state.activity.kind,
+    lastAction: state.lastAction,
+    message: state.message,
+    mouseGesture: getPublicState().mouseGesture,
     feedback: getPublicState().feedback,
   });
 };
@@ -1943,6 +2565,14 @@ ui.nameEditorInput?.addEventListener("keydown", (event) => {
     event.preventDefault();
     closeNameEditor();
   }
+});
+ui.activityPrompt?.addEventListener("pointerdown", (event) => {
+  event.stopPropagation();
+});
+ui.activityPromptClose?.addEventListener("click", () => {
+  closeActivityPrompt(true);
+  showFeedback(`${ownerTitle()}，那我稍后再来问你。`, "稍后再问", 3600, "check");
+  say(`${displayName()} ${ownerTitle()}，那我稍后再来问你。`, "稍后再问");
 });
 
 canvas.addEventListener("pointerdown", beginDrag);

@@ -122,6 +122,68 @@ body {
   font-size: 10px;
 }
 
+.activity-prompt {
+  position: absolute;
+  left: 50%;
+  top: 8px;
+  z-index: 6;
+  width: min(256px, calc(100% - 12px));
+  transform: translateX(-50%);
+  padding: 9px;
+  border: 2px solid #ffe66a;
+  background: rgba(9, 17, 30, 0.95);
+  box-shadow: 4px 4px 0 rgba(97, 255, 244, 0.28);
+  color: #ecfbff;
+  pointer-events: auto;
+  user-select: none;
+}
+
+.activity-prompt.is-hidden {
+  display: none;
+}
+
+.activity-prompt__title {
+  margin: 0 0 5px;
+  color: #ffe66a;
+  font: 800 12px "PingFang SC", "Microsoft YaHei", "Courier New", monospace;
+}
+
+.activity-prompt__body {
+  margin: 0 0 8px;
+  color: rgba(236, 251, 255, 0.9);
+  font: 10px/1.45 "PingFang SC", "Microsoft YaHei", "Courier New", monospace;
+}
+
+.activity-prompt__options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.activity-prompt__options button,
+.activity-prompt__close {
+  min-height: 25px;
+  border: 2px solid rgba(97, 255, 244, 0.72);
+  border-radius: 0;
+  background: rgba(97, 255, 244, 0.12);
+  color: #ecfbff;
+  cursor: pointer;
+  font: 11px "PingFang SC", "Microsoft YaHei", "Courier New", monospace;
+}
+
+.activity-prompt__options button:hover,
+.activity-prompt__options button:focus,
+.activity-prompt__close:hover,
+.activity-prompt__close:focus {
+  border-color: #ff35d4;
+  color: #ffffff;
+}
+
+.activity-prompt__close {
+  width: 100%;
+  margin-top: 7px;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;

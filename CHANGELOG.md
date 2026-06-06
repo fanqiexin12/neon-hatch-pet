@@ -2,6 +2,15 @@
 
 All notable updates for Neon Hatch Pet are tracked here.
 
+## v2.4.0 - Context Companion Interactions
+
+- Added time-of-day companion check-ins for morning, noon, afternoon, evening, and night.
+- Added an in-pet activity choice panel with work, reading, study, entertainment, rest, and idle options.
+- Added option-specific feedback and follow-up reminders for breaks, review, hydration, or returning gently from rest.
+- Added right-click controls for manually starting a check-in and setting the check-in interval.
+- Added mouse-motion feedback without clicking: horizontal swipes, upward swipes, downward swipes, zigzags, and loop gestures now trigger distinct actions and text.
+- Added a macOS packaging script for creating a portable `.app` and zip archive for offline Macs.
+
 ## v2.3.0 - Relationship Desktop Pet
 
 - Added custom pet naming after hatch.

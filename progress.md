@@ -38,6 +38,10 @@ Original prompt: 项目整体是赛博像素风格，宠物初始为一个蛋，
 - Added right-click menu controls for owner call interval: off, 2 minutes, 5 minutes, 10 minutes, or 30 minutes.
 - Replaced the Electron `window.prompt` naming flow with an in-pet pixel input panel, so right-click "pet name" and "owner title" menu actions can be edited reliably inside the transparent desktop window.
 - Verified the naming panel with Playwright Electron: owner title edit, hatch, pet name edit, Enter save, Escape cancel, persisted public state, and no console errors. Screenshot generated at `output/desktop-pet/desktop-name-editor.png`.
+- Added time-of-day companion check-ins for morning, noon, afternoon, evening, and night. The desktop pet can ask what the owner is doing with work, reading, study, entertainment, rest, and idle options, then give option-specific feedback and schedule a follow-up reminder.
+- Added right-click controls for manual check-ins and configurable check-in intervals: off, 10 minutes, 20 minutes, 30 minutes, or 1 hour.
+- Added pointer-motion reactions without clicking: horizontal swipes, upward swipes, downward swipes, zigzags, and loop gestures trigger distinct pet animations and text feedback.
+- Verified the new context interactions with Playwright Electron: forced morning check-in, option panel contents, study choice feedback, follow-up reminder, check-in menu state, forced zigzag gesture, real horizontal mouse swipe gesture, and no console errors. Screenshots generated at `output/desktop-pet/desktop-check-in.png`, `output/desktop-pet/desktop-check-in-reminder.png`, and `output/desktop-pet/desktop-mouse-gesture.png`.
 
 ## TODO
 

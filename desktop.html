@@ -31,6 +31,14 @@
         </div>
         <p class="name-editor__hint">回车保存，Esc 取消</p>
       </form>
+      <section class="activity-prompt is-hidden" id="activityPrompt" aria-hidden="true">
+        <h2 class="activity-prompt__title" id="activityPromptTitle">现在在做什么？</h2>
+        <p class="activity-prompt__body" id="activityPromptBody">
+          选一个，我陪你进入对应模式。
+        </p>
+        <div class="activity-prompt__options" id="activityPromptOptions"></div>
+        <button class="activity-prompt__close" id="activityPromptClose" type="button">稍后</button>
+      </section>
       <div class="sr-only" id="desktopStatus" aria-live="polite">
         我还是一颗蛋。点击或右键菜单可以孵化。
       </div>
