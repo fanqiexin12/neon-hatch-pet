@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Neon Hatch | 赛博像素宠物舱</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero" aria-labelledby="app-title">
+        <div class="hero-copy">
+          <p class="eyebrow">NEON HATCH_01</p>
+          <h1 id="app-title">赛博像素宠物舱</h1>
+          <p class="lede">设置孵化时间，唤醒一个随机像素伙伴，然后用食物、玩耍和心情信号维持它的快乐电量。</p>
+        </div>
+        <div class="signal-stack" aria-label="宠物舱状态">
+          <span>SYNC</span>
+          <span>MOOD BUS</span>
+          <span>PIXEL CORE</span>
+        </div>
+      </section>
+
+      <section class="workspace" aria-label="电子宠物工作台">
+        <div class="stage-panel">
+          <div class="panel-header">
+            <span class="panel-title">INCUBATION BAY</span>
+            <span id="modeBadge" class="mode-badge">待机</span>
+          </div>
+          <div class="canvas-wrap">
+            <canvas id="petCanvas" width="320" height="240" aria-label="像素宠物显示区"></canvas>
+            <div id="speechBubble" class="speech-bubble" aria-live="polite">蛋壳正在等待第一道启动信号。</div>
+          </div>
+          <div class="ticker" id="countdownText">设定孵化时间后开始。</div>
+        </div>
+
+        <aside class="control-panel" aria-label="控制面板">
+          <div class="control-block">
+            <h2>孵化</h2>
+            <label for="hatchSeconds">孵化时间（秒）</label>
+            <div class="hatch-row">
+              <input id="hatchSeconds" type="number" min="1" max="3600" value="12" />
+              <button id="startHatchBtn" type="button">开始孵化</button>
+            </div>
+            <button id="resetBtn" class="ghost-btn" type="button">重置宠物舱</button>
+          </div>
+
+          <div class="control-block">
+            <h2>档案</h2>
+            <label for="petNameInput">宠物昵称</label>
+            <div class="hatch-row">
+              <input id="petNameInput" type="text" maxlength="8" placeholder="给它起个名字" disabled />
+              <button id="saveNameBtn" type="button" disabled>保存昵称</button>
+            </div>
+            <div class="profile-grid" aria-label="养成信息">
+              <div>
+                <span>等级</span>
+                <strong id="levelValue">--</strong>
+              </div>
+              <div>
+                <span>经验</span>
+                <strong id="xpValue">--</strong>
+              </div>
+              <div>
+                <span>信用点</span>
+                <strong id="coinsValue">--</strong>
+              </div>
+              <div>
+                <span>称号</span>
+                <strong id="titleValue">--</strong>
+              </div>
+            </div>
+            <div class="xp-track" aria-hidden="true"><span id="xpBar"></span></div>
+          </div>
+
+          <div class="control-block">
+            <h2>照顾</h2>
+            <div class="care-actions">
+              <button id="feedBtn" type="button" disabled>喂食</button>
+              <button id="playBtn" type="button" disabled>玩耍</button>
+              <button id="cleanBtn" type="button" disabled>清洁</button>
+              <button id="sleepBtn" type="button" disabled>休息</button>
+              <button id="trainBtn" class="wide-action" type="button" disabled>训练</button>
+            </div>
+            <div class="stats" aria-label="宠物状态">
+              <div class="stat-row">
+                <span>饱腹</span>
+                <div class="stat-track"><span id="satietyBar"></span></div>
+                <strong id="satietyValue">--</strong>
+              </div>
+              <div class="stat-row">
+                <span>快乐</span>
+                <div class="stat-track"><span id="happinessBar"></span></div>
+                <strong id="happinessValue">--</strong>
+              </div>
+              <div class="stat-row">
+                <span>能量</span>
+                <div class="stat-track"><span id="energyBar"></span></div>
+                <strong id="energyValue">--</strong>
+              </div>
+              <div class="stat-row">
+                <span>羁绊</span>
+                <div class="stat-track"><span id="bondBar"></span></div>
+                <strong id="bondValue">--</strong>
+              </div>
+              <div class="stat-row">
+                <span>清洁</span>
+                <div class="stat-track"><span id="cleanlinessBar"></span></div>
+                <strong id="cleanlinessValue">--</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="control-block">
+            <h2>玩乐模式</h2>
+            <div class="care-actions">
+              <button id="startSparkBtn" type="button" disabled>追光小游戏</button>
+              <button id="exploreBtn" type="button" disabled>外出探险</button>
+            </div>
+            <p id="sparkInfo" class="mini-status">孵化后可开启限时追光。</p>
+          </div>
+
+          <div class="control-block">
+            <h2>补给商店</h2>
+            <div class="shop-list" aria-label="补给商店">
+              <button id="buyFoodBtn" type="button" disabled>
+                <span>强化能量饼</span>
+                <strong>8 C</strong>
+              </button>
+              <button id="buyToyBtn" type="button" disabled>
+                <span>激光玩具</span>
+                <strong>10 C</strong>
+              </button>
+              <button id="buyChipBtn" type="button" disabled>
+                <span>共情芯片</span>
+                <strong>12 C</strong>
+              </button>
+            </div>
+          </div>
+
+          <div class="control-block">
+            <h2>装扮与发现</h2>
+            <div class="gear-actions" aria-label="装扮选择">
+              <button id="equipNoneBtn" type="button" disabled>无装扮</button>
+              <button id="equipHaloBtn" type="button" disabled>星环</button>
+              <button id="equipCrownBtn" type="button" disabled>光冠</button>
+              <button id="equipScarfBtn" type="button" disabled>量子围巾</button>
+            </div>
+            <ul id="discoveryList" class="discovery-list" aria-label="发现记录"></ul>
+          </div>
+
+          <div class="control-block">
+            <h2>每日任务</h2>
+            <ul id="questList" class="quest-list" aria-label="每日任务列表"></ul>
+            <button id="claimQuestBtn" type="button" disabled>领取任务奖励</button>
+          </div>
+
+          <div class="control-block">
+            <h2>心情频道</h2>
+            <label for="moodInput">告诉它你现在的心情</label>
+            <textarea id="moodInput" rows="3" placeholder="例如：我今天有点累，但还想努力一下。" disabled></textarea>
+            <button id="sendMoodBtn" type="button" disabled>发送心情信号</button>
+          </div>
+        </aside>
+      </section>
+
+      <section class="log-panel" aria-label="交互日志">
+        <div class="panel-header">
+          <span class="panel-title">PET TERMINAL</span>
+          <span id="petIdentity">未孵化</span>
+        </div>
+        <ol id="eventLog"></ol>
+      </section>
+    </main>
+
+    <script src="./app.js" type="module"></script>
+  </body>
+</html>
