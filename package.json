@@ -1,6 +1,6 @@
 {
   "name": "neon-hatch-pet",
-  "version": "2.4.0",
+  "version": "2.11.0",
   "description": "Cyber pixel desktop pet and web pet prototype.",
   "main": "main.js",
   "private": true,
@@ -8,7 +8,8 @@
     "desktop": "electron .",
     "start": "electron .",
     "web": "python3 -m http.server 5173 --bind 127.0.0.1",
-    "package:mac": "bash scripts/package-mac.sh"
+    "package:mac": "bash scripts/package-mac.sh",
+    "package:win": "powershell -ExecutionPolicy Bypass -File scripts/package-win.ps1"
   },
   "devDependencies": {
     "electron": "^39.2.7"

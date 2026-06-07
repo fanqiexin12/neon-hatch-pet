@@ -39,6 +39,77 @@
         <div class="activity-prompt__options" id="activityPromptOptions"></div>
         <button class="activity-prompt__close" id="activityPromptClose" type="button">稍后</button>
       </section>
+      <section class="todo-panel is-hidden" id="todoPanel" aria-hidden="true">
+        <h2 class="todo-panel__title" id="todoPanelTitle">今日计划</h2>
+        <p class="todo-panel__body" id="todoPanelBody">
+          每行写一件今天要做的事。
+        </p>
+        <div class="todo-panel__meta" id="todoMeta">还剩 0 项</div>
+        <textarea
+          id="todoInput"
+          class="todo-panel__input"
+          rows="4"
+          maxlength="220"
+          spellcheck="false"
+          placeholder="例：整理笔记&#10;完成一个小任务&#10;晚上复盘"
+        ></textarea>
+        <div class="todo-panel__list" id="todoList"></div>
+        <div class="todo-panel__actions">
+          <button type="button" id="todoSave">保存</button>
+          <button type="button" id="todoFeedback">反馈</button>
+          <button type="button" id="todoAllDone">全完</button>
+          <button type="button" id="todoCarryover" hidden>延续</button>
+          <button type="button" id="todoLater">稍后</button>
+        </div>
+        <button class="todo-panel__close" id="todoClose" type="button">关闭</button>
+      </section>
+      <nav class="quick-bar" id="quickBar" aria-label="快捷互动栏" aria-hidden="true">
+        <section class="quick-bar__group" data-quick-group-mode="egg">
+          <span class="quick-bar__label">孵化</span>
+          <div class="quick-bar__actions">
+            <button type="button" data-pet-command="hatch">孵化</button>
+          </div>
+        </section>
+        <section class="quick-bar__group" data-quick-group-mode="hatched">
+          <span class="quick-bar__label">照顾</span>
+          <div class="quick-bar__actions">
+            <button type="button" data-pet-command="feed">喂食</button>
+            <button type="button" data-pet-command="play">玩耍</button>
+            <button type="button" data-pet-command="pet">摸摸</button>
+            <button type="button" data-pet-command="explore">探险</button>
+            <button type="button" data-pet-command="dance">跳舞</button>
+            <button type="button" data-pet-command="sleep">睡觉</button>
+            <button type="button" data-pet-command="clean">清洁</button>
+            <button type="button" data-pet-command="tickle">挠痒</button>
+            <button type="button" data-pet-command="snack">零食</button>
+            <button type="button" data-pet-command="hide">躲猫</button>
+            <button type="button" data-pet-command="photo">合影</button>
+          </div>
+        </section>
+        <section class="quick-bar__group" data-quick-group-mode="hatched">
+          <span class="quick-bar__label">心情</span>
+          <div class="quick-bar__actions quick-bar__actions--mood">
+            <button type="button" data-pet-command="mood" data-pet-value="happy">开心</button>
+            <button type="button" data-pet-command="mood" data-pet-value="sad">伤心</button>
+            <button type="button" data-pet-command="mood" data-pet-value="anxious">焦虑</button>
+            <button type="button" data-pet-command="mood" data-pet-value="tired">累了</button>
+            <button type="button" data-pet-command="mood" data-pet-value="angry">生气</button>
+            <button type="button" data-pet-command="mood" data-pet-value="bored">无聊</button>
+            <button type="button" data-pet-command="mood" data-pet-value="lonely">孤单</button>
+            <button type="button" data-pet-command="mood" data-pet-value="excited">兴奋</button>
+            <button type="button" data-pet-command="mood" data-pet-value="calm">平静</button>
+            <button type="button" data-pet-command="mood" data-pet-value="stressed">压力</button>
+          </div>
+        </section>
+        <section class="quick-bar__group" data-quick-group-mode="hatched">
+          <span class="quick-bar__label">今日</span>
+          <div class="quick-bar__actions">
+            <button type="button" data-pet-command="openTodoPanel">计划</button>
+            <button type="button" data-pet-command="reviewTodo">反馈</button>
+            <button type="button" data-pet-command="summarizeTodo">总结</button>
+          </div>
+        </section>
+      </nav>
       <div class="sr-only" id="desktopStatus" aria-live="polite">
         我还是一颗蛋。点击或右键菜单可以孵化。
       </div>

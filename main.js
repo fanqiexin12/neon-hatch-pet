@@ -44,10 +44,19 @@ const CHECK_IN_INTERVAL_MENU = [
   ["1 小时", 60 * 60 * 1000],
 ];
 
+const TODO_MORNING_TIME_MENU = ["07:30", "08:00", "08:30", "09:00", "09:30", "10:00"];
+const TODO_EVENING_TIME_MENU = ["20:00", "21:00", "21:30", "22:00", "23:00"];
+const TODO_REMINDER_INTERVAL_MENU = [
+  ["关闭", 0],
+  ["1 小时", 60 * 60 * 1000],
+  ["2 小时", 2 * 60 * 60 * 1000],
+  ["3 小时", 3 * 60 * 60 * 1000],
+];
+
 function createPetWindow() {
   const { workArea } = screen.getPrimaryDisplay();
   const width = 280;
-  const height = 260;
+  const height = 384;
 
   petWindow = new BrowserWindow({
     width,
@@ -143,6 +152,9 @@ function buildPetMenu(win, menuState) {
   const care = menuState.care || {};
   const ownerCall = menuState.ownerCall || {};
   const checkIn = menuState.checkIn || {};
+  const todo = menuState.todo || {};
+  const memory = menuState.memory || {};
+  const growth = menuState.growth || {};
   const clickLabel = hatching ? "孵化中..." : hatched ? "摸摸宠物" : "孵化";
   const clickCommand = hatched ? "pet" : "hatch";
 
@@ -266,6 +278,83 @@ function buildPetMenu(win, menuState) {
     },
   ];
 
+  const todoMorningSubmenu = TODO_MORNING_TIME_MENU.map((value) => ({
+    label: value,
+    type: "radio",
+    checked: (todo.morningTime || "09:00") === value,
+    click: () => sendPetCommand(win, "todoMorningTime", value),
+  }));
+  const todoEveningSubmenu = TODO_EVENING_TIME_MENU.map((value) => ({
+    label: value,
+    type: "radio",
+    checked: (todo.eveningTime || "21:30") === value,
+    click: () => sendPetCommand(win, "todoEveningTime", value),
+  }));
+  const todoReminderInterval = Number(todo.reminderIntervalMs ?? 2 * 60 * 60 * 1000);
+  const todoReminderSubmenu = TODO_REMINDER_INTERVAL_MENU.map(([label, value]) => ({
+    label,
+    type: "radio",
+    checked: todoReminderInterval === value,
+    click: () => sendPetCommand(win, "todoReminderInterval", value),
+  }));
+  const todoProgress = todo.progress || { done: 0, total: 0, percent: 0 };
+  const todoSubmenu = [
+    {
+      label: "打开今日 ToDo",
+      enabled: hatched,
+      click: () => sendPetCommand(win, "openTodoPanel"),
+    },
+    {
+      label: "反馈当前进度",
+      enabled: hatched,
+      click: () => sendPetCommand(win, "reviewTodo"),
+    },
+    {
+      label: "立即总结",
+      enabled: hatched,
+      click: () => sendPetCommand(win, "summarizeTodo"),
+    },
+    {
+      label: `今日进度：${todoProgress.done || 0}/${todoProgress.total || 0} (${todoProgress.percent || 0}%)`,
+      enabled: false,
+    },
+    { type: "separator" },
+    { label: `早上询问：${todo.morningTime || "09:00"}`, submenu: todoMorningSubmenu },
+    { label: `白天追问：${todo.reminderIntervalLabel || "2 小时"}`, submenu: todoReminderSubmenu },
+    { label: `晚上总结：${todo.eveningTime || "21:30"}`, submenu: todoEveningSubmenu },
+  ];
+
+  const dailyTasks = memory.daily?.tasks || [];
+  const dailySubmenu = [
+    {
+      label: `今日进度：${memory.daily?.summary || "0/3"}`,
+      enabled: false,
+    },
+    ...dailyTasks.map((task) => ({
+      label: `${task.done ? "✓" : "□"} ${task.label}`,
+      enabled: false,
+    })),
+    { type: "separator" },
+    {
+      label: "刷新今日任务",
+      enabled: hatched,
+      click: () => sendPetCommand(win, "refreshDailyTasks"),
+    },
+  ];
+
+  const growthSubmenu = [
+    {
+      label: `等级：Lv.${growth.level || 1} ${growth.title || "初识伙伴"}`,
+      enabled: false,
+    },
+    {
+      label: growth.nextLevelAt
+        ? `下一阶段：亲密度 ${growth.nextLevelAt}%`
+        : "已达到最高亲密阶段",
+      enabled: false,
+    },
+  ];
+
   const template = [
     {
       label: clickLabel,
@@ -283,14 +372,22 @@ function buildPetMenu(win, menuState) {
       { label: "跳舞", click: () => sendPetCommand(win, "dance") },
       { label: "睡觉", click: () => sendPetCommand(win, "sleep") },
       { label: "清洁", click: () => sendPetCommand(win, "clean") },
+      { label: "挠痒", click: () => sendPetCommand(win, "tickle") },
+      { label: "喂零食", click: () => sendPetCommand(win, "snack") },
+      { label: "躲猫猫", click: () => sendPetCommand(win, "hide") },
+      { label: "合影", click: () => sendPetCommand(win, "photo") },
+      { label: "聊聊", click: () => sendPetCommand(win, "talk") },
       { label: "我的心情", submenu: moodSubmenu },
       { label: "关系设置", submenu: relationshipSubmenu },
       { label: "陪伴询问", submenu: companionSubmenu },
+      { label: "今日 ToDo", submenu: todoSubmenu },
+      { label: "日常任务", submenu: dailySubmenu },
+      { label: `亲密成长：Lv.${growth.level || 1}`, submenu: growthSubmenu },
       { label: clockLabel, submenu: clockSubmenu },
       { label: `低状态提醒：${careThreshold}%`, submenu: careThresholdSubmenu },
       { type: "separator" },
       {
-        label: `${petName} / ${ownerName} | 饱腹 ${stats.satiety ?? "-"} 快乐 ${stats.happiness ?? "-"} 能量 ${stats.energy ?? "-"}`,
+        label: `${petName} / ${ownerName} | 饱腹 ${stats.satiety ?? "-"} 快乐 ${stats.happiness ?? "-"} 能量 ${stats.energy ?? "-"} | 日常 ${memory.daily?.summary || "0/3"}`,
         enabled: false,
       },
       { label: "重孵为蛋", click: () => sendPetCommand(win, "resetEgg") }
