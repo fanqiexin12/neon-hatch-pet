@@ -27,9 +27,14 @@ const ui = {
   todoCarryover: document.getElementById("todoCarryover"),
   todoLater: document.getElementById("todoLater"),
   todoClose: document.getElementById("todoClose"),
+  journalPanel: document.getElementById("journalPanel"),
+  journalList: document.getElementById("journalList"),
+  journalClear: document.getElementById("journalClear"),
+  journalClose: document.getElementById("journalClose"),
   quickBar: document.getElementById("quickBar"),
-  quickBarGroups: Array.from(document.querySelectorAll("[data-quick-group-mode]")),
-  quickBarButtons: Array.from(document.querySelectorAll("[data-pet-command]")),
+  quickBarSub: document.getElementById("quickBarSub"),
+  quickBarCats: document.getElementById("quickBarCats"),
+  quickBarCatButtons: Array.from(document.querySelectorAll("[data-quick-cat]")),
 };
 
 const PETS = [
@@ -657,6 +662,16 @@ const INTERACTION_MOTIONS = {
     { activity: "hideBox", durationMs: 2800, particle: "heart", count: 6, x: 122, y: 96, color: "#ffe66a" },
     { activity: "hideShadow", durationMs: 2500, particle: "spark", count: 7, x: 160, y: 96, color: "#ff35d4" },
   ],
+  highFive: [
+    { activity: "highFive", durationMs: 2100, particle: "spark", count: 8, x: 120, y: 64, color: "#ffe66a" },
+    { activity: "highFiveJump", durationMs: 2300, particle: "heart", count: 7, x: 128, y: 72, color: "#82ff8f" },
+    { activity: "highFiveFlash", durationMs: 2200, particle: "spark", count: 10, x: 122, y: 76, color: "#61fff4" },
+  ],
+  sing: [
+    { activity: "sing", durationMs: 2700, particle: "note", count: 9, x: 142, y: 70, color: "#ffb8ec" },
+    { activity: "singPulse", durationMs: 2900, particle: "note", count: 12, x: 120, y: 72, color: "#61fff4" },
+    { activity: "singSolo", durationMs: 2800, particle: "spark", count: 8, x: 134, y: 76, color: "#ffe66a" },
+  ],
   photo: [
     { activity: "photoPose", durationMs: 2600, particle: "spark", count: 8, x: 122, y: 70, color: "#ecfbff" },
     { activity: "photoFlash", durationMs: 2400, particle: "spark", count: 12, x: 120, y: 78, color: "#ffe66a" },
@@ -946,6 +961,54 @@ const INTERACTION_FEEDBACK = {
       winter: ["冬天这张带一点暖灯感，{pet} 很满意。"],
     },
   },
+  highFive: {
+    base: [
+      "{pet} 伸出小爪子和你击掌，屏幕边缘亮了一下。",
+      "击掌同步成功，{pet} 把这一下当成小小胜利。",
+      "{pet} 认真抬爪：啪！今日士气上升一格。",
+    ],
+    period: {
+      morning: ["上午击掌像启动仪式，{pet} 说今天可以开跑了。"],
+      noon: ["中午击掌不宜太用力，{pet} 顺便提醒你休息眼睛。"],
+      afternoon: ["下午这一掌很提神，{pet} 把困意拍掉一点。"],
+      evening: ["晚上击掌像收工前的确认，{pet} 觉得你撑得很棒。"],
+      night: ["夜里轻轻击掌，{pet} 用低亮度庆祝你还在努力。"],
+    },
+    state: {
+      tired: ["能量偏低也可以击掌，{pet} 用轻量版动作回应你。"],
+      bored: ["快乐槽有点低，这一下击掌刚好把它抬起来。"],
+    },
+    season: {
+      spring: ["春天这一掌像新芽冒头，很轻但很有劲。"],
+      summer: ["夏天击掌像小电火花，{pet} 亮得很直接。"],
+      autumn: ["秋天这一掌很稳，像把进度存进金色缓存。"],
+      winter: ["冬天击掌要暖一点，{pet} 把爪爪光调软了。"],
+    },
+  },
+  sing: {
+    base: [
+      "{pet} 唱了一小段像素旋律，音符在桌面上跳了一圈。",
+      "小歌开始，{pet} 用霓虹音符给你做背景伴奏。",
+      "{pet} 清了清嗓子，唱出一串亮晶晶的方波。",
+    ],
+    period: {
+      morning: ["上午这首像开机铃，{pet} 唱得轻快。"],
+      noon: ["中午唱一小段就好，{pet} 不想打扰你的午间节奏。"],
+      afternoon: ["下午这首歌像注意力补丁，{pet} 帮你提一点神。"],
+      evening: ["晚上旋律慢下来，{pet} 把今天的光收进尾音。"],
+      night: ["夜里唱静音版，{pet} 只让几个小音符发光。"],
+    },
+    state: {
+      tired: ["能量低的时候，{pet} 把歌唱得更慢，像陪你充电。"],
+      lonely: ["亲密信号偏弱时，这首歌会更靠近你一点。"],
+    },
+    season: {
+      spring: ["春天的歌像新芽晃动，轻轻亮起来。"],
+      summer: ["夏天的歌很亮，像热风里的小电波。"],
+      autumn: ["秋天的歌适合收藏，{pet} 唱得很稳。"],
+      winter: ["冬天的歌像小暖灯，{pet} 唱完贴近一点。"],
+    },
+  },
   mood: {
     base: [
       "我会把这份心情放进今天的陪伴日志。",
@@ -988,6 +1051,55 @@ const COMPANION_SEASON_LINES = {
   summer: ["夏天的陪伴像小电波，亮得直接又热闹。"],
   autumn: ["秋天的陪伴适合慢慢沉淀，像收好一枚金色缓存。"],
   winter: ["冬天的陪伴要暖一点，所以我把亮度调柔了。"],
+};
+
+const QUICK_BAR_ITEMS = {
+  care: [
+    { label: "喂食", command: "feed" },
+    { label: "摸摸", command: "pet" },
+    { label: "睡觉", command: "sleep" },
+    { label: "清洁", command: "clean" },
+  ],
+  fun: [
+    { label: "玩耍", command: "play" },
+    { label: "探险", command: "explore" },
+    { label: "跳舞", command: "dance" },
+    { label: "挠痒", command: "tickle" },
+    { label: "零食", command: "snack" },
+    { label: "躲猫", command: "hide" },
+    { label: "击掌", command: "highFive" },
+    { label: "唱歌", command: "sing" },
+    { label: "合影", command: "photo" },
+    { label: "聊聊", command: "talk" },
+  ],
+  mood: [
+    { label: "开心", command: "mood", value: "happy" },
+    { label: "伤心", command: "mood", value: "sad" },
+    { label: "焦虑", command: "mood", value: "anxious" },
+    { label: "累了", command: "mood", value: "tired" },
+    { label: "生气", command: "mood", value: "angry" },
+    { label: "无聊", command: "mood", value: "bored" },
+    { label: "孤单", command: "mood", value: "lonely" },
+    { label: "兴奋", command: "mood", value: "excited" },
+    { label: "平静", command: "mood", value: "calm" },
+    { label: "压力", command: "mood", value: "stressed" },
+  ],
+  todo: [
+    { label: "计划", command: "openTodoPanel" },
+    { label: "反馈", command: "reviewTodo" },
+    { label: "总结", command: "summarizeTodo" },
+    { label: "问我", command: "startCheckIn" },
+  ],
+  more: [
+    { label: "日记", command: "openJournalPanel" },
+    { label: "报时", command: "announceTime" },
+    { label: "叫主人", command: "callOwner" },
+    { label: "宠物名", command: "promptPetName" },
+    { label: "主人名", command: "promptOwnerName" },
+    { label: "日常", command: "refreshDailyTasks" },
+    { label: "菜单", command: "openMenu" },
+    { label: "重孵", command: "resetEgg" },
+  ],
 };
 
 const CHECK_IN_CHOICES = {
@@ -1137,7 +1249,7 @@ const DAILY_TASK_POOL = [
     label: "和宠物玩一次新互动",
     reward: { coins: 5, bond: 5, happiness: 6 },
     match(event) {
-      return event.type === "careAction" && ["tickle", "snack", "hide", "photo"].includes(event.action);
+      return event.type === "careAction" && ["tickle", "snack", "hide", "photo", "highFive", "sing"].includes(event.action);
     },
   },
   {
@@ -1167,6 +1279,7 @@ const DAILY_TASK_POOL = [
 ];
 
 const MEMORY_MAX_DAYS = 7;
+const JOURNAL_MAX_ENTRIES = 80;
 
 function pad2(value) {
   return String(value).padStart(2, "0");
@@ -1470,6 +1583,7 @@ function defaultState() {
     },
     memory: {
       activityLog: [],
+      journal: [],
       daily: createDailyMemory(),
       lastInsight: "",
     },
@@ -1522,6 +1636,13 @@ let activityPromptState = {
 let todoPanelState = {
   open: false,
   mode: "manual",
+};
+let journalPanelState = {
+  open: false,
+};
+let quickBarState = {
+  activeCat: "",
+  renderedCat: "",
 };
 let todoDragId = "";
 let mouseGestureState = {
@@ -1677,9 +1798,22 @@ function normalizeMemory(memory = {}) {
         .filter((item) => item && item.date && item.choiceKey)
         .slice(-40)
     : [];
+  const journal = Array.isArray(memory.journal)
+    ? memory.journal
+        .filter((item) => item && item.at && item.text)
+        .map((item) => ({
+          id: String(item.id || `${item.at}-${Math.random().toString(36).slice(2, 7)}`),
+          at: Number(item.at) || Date.now(),
+          type: String(item.type || "care").slice(0, 24),
+          title: String(item.title || "互动").slice(0, 18),
+          text: String(item.text || "").slice(0, 140),
+        }))
+        .slice(-JOURNAL_MAX_ENTRIES)
+    : [];
 
   return {
     activityLog,
+    journal,
     daily,
     lastInsight: memory.lastInsight || "",
   };
@@ -1869,6 +2003,132 @@ function showFeedback(text, title = "反馈", durationMs = 4600, variant = "spee
   };
 }
 
+function journalTypeLabel(type) {
+  return {
+    care: "互动",
+    mood: "心情",
+    todo: "今日",
+    milestone: "里程碑",
+    motion: "动作",
+    check: "询问",
+  }[type] || "记录";
+}
+
+function journalDayLabel(timestamp) {
+  const date = new Date(timestamp);
+  const today = todayKey();
+  const yesterday = todayKey(addDays(new Date(), -1));
+  const key = todayKey(date);
+  if (key === today) return "今天";
+  if (key === yesterday) return "昨天";
+  return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
+}
+
+function journalTimeLabel(timestamp) {
+  const date = new Date(timestamp);
+  return `${pad2(date.getHours())}:${pad2(date.getMinutes())}`;
+}
+
+function addJournalEntry(type, title, text) {
+  if (!state.memory) state.memory = normalizeMemory({});
+  if (!Array.isArray(state.memory.journal)) state.memory.journal = [];
+  const entry = {
+    id: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`,
+    at: Date.now(),
+    type: String(type || "care").slice(0, 24),
+    title: String(title || journalTypeLabel(type)).slice(0, 18),
+    text: String(text || "").replace(/\s+/g, " ").trim().slice(0, 140),
+  };
+  if (!entry.text) return false;
+  state.memory.journal.push(entry);
+  state.memory.journal = state.memory.journal.slice(-JOURNAL_MAX_ENTRIES);
+  if (journalPanelState.open) renderJournalPanel();
+  saveState();
+  return true;
+}
+
+function renderJournalPanel() {
+  if (!ui.journalList) return;
+  const entries = Array.isArray(state.memory?.journal) ? [...state.memory.journal].reverse() : [];
+  ui.journalList.innerHTML = "";
+  if (!entries.length) {
+    const empty = document.createElement("div");
+    empty.className = "journal-panel__empty";
+    empty.textContent = "还没有记录。喂食、心情、ToDo 和互动都会慢慢写进这里。";
+    ui.journalList.appendChild(empty);
+    return;
+  }
+
+  let currentDay = "";
+  let dayNode = null;
+  entries.forEach((entry) => {
+    const day = journalDayLabel(entry.at);
+    if (day !== currentDay) {
+      currentDay = day;
+      dayNode = document.createElement("section");
+      dayNode.className = "journal-panel__day";
+      const label = document.createElement("div");
+      label.className = "journal-panel__day-label";
+      label.textContent = day;
+      dayNode.appendChild(label);
+      ui.journalList.appendChild(dayNode);
+    }
+
+    const row = document.createElement("article");
+    row.className = `journal-panel__entry journal-panel__entry--${entry.type}`;
+    const meta = document.createElement("div");
+    meta.className = "journal-panel__meta";
+    const title = document.createElement("span");
+    title.textContent = entry.title || journalTypeLabel(entry.type);
+    const time = document.createElement("span");
+    time.textContent = journalTimeLabel(entry.at);
+    const text = document.createElement("div");
+    text.className = "journal-panel__text";
+    text.textContent = entry.text;
+    meta.appendChild(title);
+    meta.appendChild(time);
+    row.appendChild(meta);
+    row.appendChild(text);
+    dayNode.appendChild(row);
+  });
+}
+
+function openJournalPanel() {
+  if (!requirePet("陪伴日记")) return false;
+  if (!ui.journalPanel) {
+    say("陪伴日记面板没有加载成功。", "陪伴日记");
+    return false;
+  }
+  closeNameEditor();
+  closeActivityPrompt(false);
+  closeTodoPanel();
+  journalPanelState.open = true;
+  hoverState.show = false;
+  hoverState.stillMs = 0;
+  renderJournalPanel();
+  ui.journalPanel.classList.remove("is-hidden");
+  ui.journalPanel.setAttribute("aria-hidden", "false");
+  showFeedback(`${ownerTitle()}，最近的陪伴记录都在这里。`, "陪伴日记", 3600, "mood");
+  return true;
+}
+
+function closeJournalPanel() {
+  journalPanelState.open = false;
+  if (!ui.journalPanel) return;
+  ui.journalPanel.classList.add("is-hidden");
+  ui.journalPanel.setAttribute("aria-hidden", "true");
+}
+
+function clearJournalPanel() {
+  if (!state.memory) state.memory = normalizeMemory({});
+  state.memory.journal = [];
+  renderJournalPanel();
+  saveState();
+  showFeedback(`${ownerTitle()}，日记已经清空。新的互动会重新记录。`, "陪伴日记", 3600, "mood");
+  say(`${displayName()} ${ownerTitle()}，日记已经清空。`, "陪伴日记");
+  return true;
+}
+
 function playTodoChime(kind = "done") {
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
   if (!AudioContextClass) return;
@@ -1975,6 +2235,7 @@ function resetToEgg(message = "已经回到初始蛋。再点一次孵化，会�
   state.lastAction = "等待孵化";
   particles = [];
   closeTodoPanel();
+  closeJournalPanel();
   localStorage.removeItem(STORAGE_KEY);
   saveState();
   renderDom();
@@ -2017,6 +2278,7 @@ function finishHatch() {
   setActivity("happy", 2200);
   burst("spark", 8, 120, 70, "#ffe66a");
   say(`${pet.name} 入驻桌面：${pet.personality}。${ownerTitle()}，可以给我取个名字。`, "已入驻");
+  addJournalEntry("milestone", "孵化", `${pet.name} 入驻桌面，性格是${pet.personality}。`);
 }
 
 function requirePet(action) {
@@ -2040,6 +2302,7 @@ function feedPet() {
   const message = addressOwner(contextualFeedback("feed", `${displayName()} 吃掉一块小小能量饼，顺手吐出 2 C。`));
   showFeedback(message, "喂食", 5200, "care");
   say(`${displayName()} ${message}`, "喂食");
+  addJournalEntry("care", "喂食", message);
   handleDailyProgress({ type: "careAction", action: "feed" });
 }
 
@@ -2059,6 +2322,7 @@ function playPet() {
   const message = addressOwner(contextualFeedback("play", `${displayName()} 在桌面上追了一圈霓虹光点。`));
   showFeedback(message, "玩耍", 5200, "care");
   say(`${displayName()} ${message}`, "玩耍");
+  addJournalEntry("care", "玩耍", message);
 }
 
 function explorePet() {
@@ -2079,6 +2343,7 @@ function explorePet() {
   const message = addressOwner(`${contextualFeedback("explore", `${displayName()} ${event}`)} ${event}`);
   showFeedback(message, "探险", 5400, "care");
   say(`${displayName()} ${message}`, "探险");
+  addJournalEntry("care", "探险", message);
 }
 
 function petPet() {
@@ -2090,6 +2355,7 @@ function petPet() {
   const message = addressOwner(contextualFeedback("pet", `${displayName()} 被摸摸以后，贴着桌面蹭了一下。`));
   showFeedback(message, "摸摸", 5000, "care");
   say(`${displayName()} ${message}`, "摸摸");
+  addJournalEntry("care", "摸摸", message);
   handleDailyProgress({ type: "careAction", action: "pet" });
 }
 
@@ -2109,6 +2375,7 @@ function dancePet() {
   const message = addressOwner(contextualFeedback("dance", `${displayName()} 播放一段赛博节拍，跳得像小小霓虹灯。`));
   showFeedback(message, "跳舞", 5400, "care");
   say(`${displayName()} ${message}`, "跳舞");
+  addJournalEntry("care", "跳舞", message);
 }
 
 function sleepPet() {
@@ -2122,6 +2389,7 @@ function sleepPet() {
   const message = addressOwner(contextualFeedback("sleep", `${displayName()} 进入桌面小睡，呼吸频率变得很稳。`));
   showFeedback(message, "睡觉", 5400, "care");
   say(`${displayName()} ${message}`, "睡觉");
+  addJournalEntry("care", "睡觉", message);
 }
 
 function cleanPet() {
@@ -2134,6 +2402,7 @@ function cleanPet() {
   const message = addressOwner(contextualFeedback("clean", `${displayName()} 的像素边缘被擦得亮晶晶。`));
   showFeedback(message, "清洁", 5200, "care");
   say(`${displayName()} ${message}`, "清洁");
+  addJournalEntry("care", "清洁", message);
 }
 
 function ticklePet() {
@@ -2146,6 +2415,7 @@ function ticklePet() {
   const message = addressOwner(contextualFeedback("tickle", `${displayName()} 被挠到笑点，像素身体抖了一下。`));
   showFeedback(message, "挠痒", 5200, "care");
   say(`${displayName()} ${message}`, "挠痒");
+  addJournalEntry("care", "挠痒", message);
   handleDailyProgress({ type: "careAction", action: "tickle" });
 }
 
@@ -2160,6 +2430,7 @@ function snackPet() {
   const message = addressOwner(contextualFeedback("snack", `${displayName()} 收到一枚小零食，开心条轻轻跳了一下。`));
   showFeedback(message, "喂零食", 5200, "care");
   say(`${displayName()} ${message}`, "喂零食");
+  addJournalEntry("care", "喂零食", message);
   handleDailyProgress({ type: "careAction", action: "snack" });
 }
 
@@ -2177,6 +2448,7 @@ function hidePet() {
   const message = addressOwner(contextualFeedback("hide", `${displayName()} 藏到桌面边缘，又探出半个像素脑袋。`));
   showFeedback(message, "躲猫猫", 5400, "care");
   say(`${displayName()} ${message}`, "躲猫猫");
+  addJournalEntry("care", "躲猫猫", message);
   handleDailyProgress({ type: "careAction", action: "hide" });
 }
 
@@ -2190,7 +2462,40 @@ function photoPet() {
   const message = addressOwner(contextualFeedback("photo", `${displayName()} 摆了一个小小像素姿势，合影信号保存。`));
   showFeedback(message, "合影", 5600, "care");
   say(`${displayName()} ${message}`, "合影");
+  addJournalEntry("care", "合影", message);
   handleDailyProgress({ type: "careAction", action: "photo" });
+}
+
+function highFivePet() {
+  if (!requirePet("击掌")) return;
+  state.stats.happiness = clamp(state.stats.happiness + 10);
+  state.stats.bond = clamp(state.stats.bond + 7);
+  state.stats.energy = clamp(state.stats.energy - 2);
+  updateGrowth();
+  playInteractionMotion("highFive");
+  const message = addressOwner(contextualFeedback("highFive", `${displayName()} 伸出小爪子和你击掌。`));
+  showFeedback(message, "击掌", 5200, "care");
+  say(`${displayName()} ${message}`, "击掌");
+  addJournalEntry("care", "击掌", message);
+  handleDailyProgress({ type: "careAction", action: "highFive" });
+}
+
+function singPet() {
+  if (!requirePet("唱歌")) return;
+  if (state.stats.energy < 8) {
+    say(addressOwner(`${displayName()} 想唱歌，但现在嗓子电量有点低。`), "低电量");
+    return;
+  }
+  state.stats.happiness = clamp(state.stats.happiness + 13);
+  state.stats.bond = clamp(state.stats.bond + 5);
+  state.stats.energy = clamp(state.stats.energy - 8);
+  updateGrowth();
+  playInteractionMotion("sing");
+  const message = addressOwner(contextualFeedback("sing", `${displayName()} 唱了一小段像素旋律。`));
+  showFeedback(message, "唱歌", 5400, "care");
+  say(`${displayName()} ${message}`, "唱歌");
+  addJournalEntry("care", "唱歌", message);
+  handleDailyProgress({ type: "careAction", action: "sing" });
 }
 
 function setPetName(value) {
@@ -2204,6 +2509,7 @@ function setPetName(value) {
   burst("heart", 6, 120, 72, "#ff35d4");
   showFeedback(message, "宠物命名", 4600, "name");
   say(message, "宠物命名");
+  addJournalEntry("milestone", "宠物命名", message);
   return true;
 }
 
@@ -2216,6 +2522,7 @@ function setOwnerName(value) {
   }
   showFeedback(message, "主人称呼", 4600, "name");
   say(state.mode === "hatched" ? `${displayName()} ${message}` : message, "主人称呼");
+  if (state.mode === "hatched") addJournalEntry("milestone", "主人称呼", message);
   return true;
 }
 
@@ -2227,6 +2534,7 @@ function openNameEditor(kind) {
   if (kind === "pet" && !requirePet("命名")) return false;
 
   closeTodoPanel();
+  closeJournalPanel();
   nameEditorState.kind = kind;
   hoverState.show = false;
   hoverState.stillMs = 0;
@@ -2286,7 +2594,9 @@ function updateGrowth() {
     state.growth.lastCelebratedLevel = next.level;
     setActivity("levelUp", 3300);
     burst("note", 10, 122, 70, "#ffe66a");
-    showFeedback(`${ownerTitle()}，我们的亲密度升到 Lv.${next.level}：${next.title}。`, "亲密升级", 5600, "growth");
+    const message = `${ownerTitle()}，我们的亲密度升到 Lv.${next.level}：${next.title}。`;
+    showFeedback(message, "亲密升级", 5600, "growth");
+    addJournalEntry("milestone", "亲密升级", message);
   }
   return leveled;
 }
@@ -2356,6 +2666,7 @@ function handleDailyProgress(event) {
   }
   state.message = `${displayName()} ${ownerTitle()}，${rewardText}`;
   state.lastAction = "日常奖励";
+  addJournalEntry("todo", "日常奖励", rewardText);
   saveState();
   return completed;
 }
@@ -2381,6 +2692,7 @@ function refreshDailyTasks(reason = "manual") {
   const message = `${ownerTitle()}，今日小任务刷新好了：${labels}。`;
   showFeedback(message, reason === "manual" ? "日常任务" : "任务刷新", 5600, "task");
   say(`${displayName()} ${message}`, "日常任务");
+  addJournalEntry("todo", "日常任务", message);
   saveState();
   return true;
 }
@@ -2509,6 +2821,7 @@ function openTodoPanel(mode = "manual") {
   ensureTodoDate();
   closeNameEditor();
   closeActivityPrompt(false);
+  closeJournalPanel();
   todoPanelState.open = true;
   todoPanelState.mode = mode;
   hoverState.show = false;
@@ -2560,6 +2873,7 @@ function saveTodoPlan(reason = "manual") {
   burst("note", 6, 122, 72, "#82ff8f");
   showFeedback(message, "计划保存", 5200, "todo");
   say(`${displayName()} ${message}`, "计划保存");
+  addJournalEntry("todo", "计划保存", message);
   renderTodoPanel();
   saveState();
   return reason;
@@ -2648,6 +2962,7 @@ function applyTodoCarryover() {
   playTodoChime("carry");
   showFeedback(message, "延续 ToDo", 5400, "todo");
   say(`${displayName()} ${message}`, "延续 ToDo");
+  addJournalEntry("todo", "延续 ToDo", message);
   syncTodoInputFromItems();
   renderTodoPanel();
   saveState();
@@ -2667,6 +2982,9 @@ function setTodoItemDone(id, done) {
     const message = `${ownerTitle()}，最后一项也完成了。今日 ToDo 清屏成功！`;
     showFeedback(message, "全部完成", 5600, "todo");
     say(`${displayName()} ${message}`, "全部完成");
+    addJournalEntry("todo", "全部完成", message);
+  } else if (done) {
+    addJournalEntry("todo", "完成 ToDo", `${ownerTitle()} 完成了「${item.text}」。`);
   }
   renderTodoPanel();
   saveState();
@@ -2701,6 +3019,7 @@ function submitTodoFeedback(kind = "progress") {
   }
   showFeedback(message, kind === "later" ? "稍后再问" : "进度反馈", 5400, "todo");
   say(`${displayName()} ${message}`, kind === "later" ? "稍后再问" : "进度反馈");
+  if (kind !== "later") addJournalEntry("todo", "进度反馈", message);
   saveState();
   return true;
 }
@@ -2729,6 +3048,7 @@ function summarizeTodo(reason = "manual") {
   burst("note", 8, 122, 72, "#ffe66a");
   showFeedback(message, "晚间总结", 6800, "todo");
   say(`${displayName()} ${message}`, "晚间总结");
+  addJournalEntry("todo", "晚间总结", message);
   saveState();
   return true;
 }
@@ -2747,6 +3067,7 @@ function respondMood(moodKey) {
   const addressed = addressOwner(enrichMoodFeedback(moodKey, feedback));
   showFeedback(addressed, mood.action, 5600, "mood");
   say(`${displayName()} ${addressed}`, mood.action);
+  addJournalEntry("mood", mood.action, addressed);
   handleDailyProgress({ type: "mood", moodKey });
 }
 
@@ -2789,6 +3110,7 @@ function announceTime(reason = "manual", date = new Date()) {
   const message = addressOwner(timeText);
   showFeedback(message, reason === "auto" ? "自动报时" : "报时", 3600, "time");
   say(`${displayName()} 报时：${message}`, reason === "auto" ? "自动报时" : "报时");
+  if (reason !== "auto") addJournalEntry("care", "报时", message);
   return true;
 }
 
@@ -2912,6 +3234,7 @@ function triggerOwnerCall(reason = "auto") {
   burst("heart", 7, 122, 70, "#ff35d4");
   showFeedback(message, reason === "manual" ? "叫主人" : "想主人", 5200, "call");
   say(`${displayName()} ${message}`, reason === "manual" ? "叫主人" : "呼唤主人");
+  if (reason === "manual") addJournalEntry("care", "叫主人", message);
   return true;
 }
 
@@ -2993,6 +3316,7 @@ function openActivityPrompt(reason = "auto", periodKey = getDayPeriod().key) {
 
   closeNameEditor();
   closeTodoPanel();
+  closeJournalPanel();
   const period = getDayPeriodByKey(periodKey);
   activityPromptState.open = true;
   activityPromptState.periodKey = period.key;
@@ -3059,6 +3383,7 @@ function respondCheckIn(choiceKey) {
   state.checkIn.nextInMs = randomCheckInDelay(state.checkIn.intervalMs);
   showFeedback(feedback, choice.action, 5600, "check");
   say(`${displayName()} ${feedback}`, choice.action);
+  addJournalEntry("check", choice.action, `你选择了「${choice.label}」。${feedback}`);
   handleDailyProgress({ type: "checkInChoice", choiceKey, periodKey: period.key });
   return true;
 }
@@ -3107,12 +3432,13 @@ function triggerCheckInReminder() {
   burst("spark", 7, 120, 70, choice.color);
   showFeedback(message, "小提醒", 5600, "reminder");
   say(`${displayName()} ${message}`, "小提醒");
+  addJournalEntry("check", "小提醒", message);
   handleDailyProgress({ type: "checkInReminder", choiceKey: reminder.choiceKey });
   return true;
 }
 
 function todoAutomationBusy() {
-  return nameEditorState.kind || activityPromptState.open || todoPanelState.open || state.activity.timeLeftMs > 0;
+  return nameEditorState.kind || activityPromptState.open || todoPanelState.open || journalPanelState.open || state.activity.timeLeftMs > 0;
 }
 
 function updateTodo(dtMs, date = new Date()) {
@@ -3208,6 +3534,7 @@ function triggerCompanionMoment(moment, date = new Date()) {
   burst("heart", 8, 122, 70, "#ffb8ec");
   showFeedback(message, "陪伴时长", 6400, "call");
   say(`${displayName()} ${message}`, "陪伴时长");
+  addJournalEntry("milestone", "陪伴时长", message);
   return true;
 }
 
@@ -3216,7 +3543,7 @@ function updateCompanionMoments(date = new Date()) {
   ensureCompanionSchedule(date);
   const today = todayKey(date);
   if (state.companion.scheduleDate !== today) return;
-  if (nameEditorState.kind || activityPromptState.open || todoPanelState.open || state.activity.timeLeftMs > 0) return;
+  if (nameEditorState.kind || activityPromptState.open || todoPanelState.open || journalPanelState.open || state.activity.timeLeftMs > 0) return;
   const nowMinutes = date.getHours() * 60 + date.getMinutes();
   const moment = state.companion.moments.find((item) => !item.done && timeToMinutes(item.time) <= nowMinutes);
   if (!moment) {
@@ -3255,6 +3582,7 @@ function talkPet() {
   burst(talk.particle || "spark", 6, 122, 72, talk.color || "#61fff4");
   showFeedback(message, talk.action, 5400, "talk");
   say(`${displayName()} ${message}`, talk.action);
+  addJournalEntry("care", talk.action, message);
   return true;
 }
 
@@ -3341,6 +3669,7 @@ function shouldShowQuickBar() {
     && !nameEditorState.kind
     && !activityPromptState.open
     && !todoPanelState.open
+    && !journalPanelState.open
     && !dragStart
     && (hoverState.over || hoverState.barOver || hoverState.barVisibleMs > 0);
 }
@@ -3368,19 +3697,82 @@ function renderQuickBar() {
 
   ui.quickBar.classList.toggle("is-visible", canShow);
   ui.quickBar.setAttribute("aria-hidden", canShow ? "false" : "true");
-  ui.quickBarGroups.forEach((group) => {
-    group.hidden = group.dataset.quickGroupMode !== state.mode;
-  });
-  ui.quickBarButtons.forEach((button) => {
-    const group = button.closest("[data-quick-group-mode]");
-    const visible = !group?.hidden;
+
+  ui.quickBarCatButtons.forEach((button) => {
+    const visible = button.dataset.quickMode === state.mode;
+    button.hidden = !visible;
     button.disabled = !visible;
+  });
+
+  if (!canShow || !quickBarCategoryVisible(quickBarState.activeCat)) {
+    quickBarState.activeCat = "";
+  }
+  ui.quickBarCatButtons.forEach((button) => {
+    const visible = !button.hidden && !button.disabled;
+    button.classList.toggle("is-active", visible && button.dataset.quickCat === quickBarState.activeCat);
+  });
+  renderQuickBarSub();
+}
+
+function quickBarCategoryVisible(cat) {
+  if (!cat) return false;
+  return ui.quickBarCatButtons.some((button) => (
+    button.dataset.quickCat === cat
+    && button.dataset.quickMode === state.mode
+  ));
+}
+
+function quickBarItemsFor(cat) {
+  if (cat === "hatch" && state.mode === "egg") {
+    return [{ label: "开始孵化", command: "hatch" }];
+  }
+  if (state.mode !== "hatched") return [];
+  return QUICK_BAR_ITEMS[cat] || [];
+}
+
+function renderQuickBarSub(force = false) {
+  if (!ui.quickBarSub) return;
+  const cat = quickBarState.activeCat;
+  if (!force && quickBarState.renderedCat === cat) return;
+  quickBarState.renderedCat = cat;
+  ui.quickBarSub.innerHTML = "";
+  const items = quickBarItemsFor(cat);
+  ui.quickBarSub.classList.toggle("is-open", Boolean(items.length));
+
+  items.forEach((item) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "quick-bar__item";
+    button.textContent = item.label;
+    button.dataset.petCommand = item.command;
+    if (item.value !== undefined) button.dataset.petValue = item.value;
+    ui.quickBarSub.appendChild(button);
   });
 }
 
-function quickBarButtonVisible(button) {
-  const group = button.closest("[data-quick-group-mode]");
-  return Boolean(button && !button.hidden && !button.disabled && !group?.hidden);
+function quickBarCategoryLabels() {
+  return ui.quickBarCatButtons
+    .filter((button) => !button.hidden && !button.disabled)
+    .map((button) => button.querySelector("span:last-child")?.textContent?.trim() || button.textContent.trim())
+    .filter(Boolean);
+}
+
+function quickBarButtonLabels() {
+  return Array.from(ui.quickBarSub?.querySelectorAll("[data-pet-command]") || [])
+    .map((button) => button.textContent.trim())
+    .filter(Boolean);
+}
+
+function selectQuickBarCategory(cat, toggle = false) {
+  if (!quickBarCategoryVisible(cat)) return false;
+  if (toggle && quickBarState.activeCat === cat) {
+    quickBarState.activeCat = "";
+  } else {
+    quickBarState.activeCat = cat;
+  }
+  quickBarState.renderedCat = "";
+  renderQuickBar();
+  return true;
 }
 
 function drawBackground() {
@@ -3598,6 +3990,8 @@ function getActivityBob(activity) {
   if (activity === "tickle" || activity === "tickleWiggle" || activity === "tickleLaugh") return Math.sin(state.animationMs / 55) * 6;
   if (activity === "snack" || activity === "snackPop" || activity === "snackStar") return Math.sin(state.animationMs / 150) * 4;
   if (activity === "hidePeek" || activity === "hideBox" || activity === "hideShadow") return Math.sin(state.animationMs / 120) * 5;
+  if (activity === "highFive" || activity === "highFiveJump" || activity === "highFiveFlash") return -Math.abs(Math.sin(state.animationMs / 120)) * 8;
+  if (activity === "sing" || activity === "singPulse" || activity === "singSolo") return Math.sin(state.animationMs / 150) * 5;
   if (activity === "photoPose" || activity === "photoHeart") return Math.sin(state.animationMs / 220) * 2;
   if (activity === "photoFlash") return -Math.abs(Math.sin(state.animationMs / 120)) * 5;
   if (activity === "mouseJump") return -Math.abs(Math.sin(state.animationMs / 110)) * 14;
@@ -3632,6 +4026,8 @@ function getActivityShift(activity) {
   if (activity === "tickleWiggle" || activity === "tickleLaugh") return Math.sin(state.animationMs / 42) * 8;
   if (activity === "hidePeek" || activity === "hideShadow") return Math.sin(state.animationMs / 95) * 7;
   if (activity === "snackPop") return Math.sin(state.animationMs / 80) * 4;
+  if (activity === "highFiveJump" || activity === "highFiveFlash") return Math.sin(state.animationMs / 70) * 5;
+  if (activity === "singPulse" || activity === "singSolo") return Math.sin(state.animationMs / 90) * 4;
   if (activity === "photoFlash") return Math.sin(state.animationMs / 65) * 3;
   if (activity === "sparkRush") return Math.sin(state.animationMs / 48) * 7;
   if (activity === "vent") return Math.sin(state.animationMs / 42) * 5;
@@ -3661,6 +4057,8 @@ function getActivitySquish(activity) {
   if (activity === "cleanBubble") return Math.sin(state.animationMs / 130) * 1.5;
   if (activity === "tickle" || activity === "tickleWiggle" || activity === "tickleLaugh") return Math.sin(state.animationMs / 70) * 2.5;
   if (activity === "hideBox") return 2;
+  if (activity === "highFive") return Math.sin(state.animationMs / 120) * 1.5;
+  if (activity === "singPulse") return Math.sin(state.animationMs / 190) * 1.8;
   if (activity === "photoPose" || activity === "photoHeart") return Math.sin(state.animationMs / 180) * 1.2;
   if (activity === "stretch") return -Math.abs(Math.sin(state.animationMs / 150)) * 4;
   if (activity === "hop") return Math.max(0, Math.sin(state.animationMs / 95)) * 3;
@@ -3836,6 +4234,27 @@ function drawActivityProps(activity, x, y, accent, spark) {
     drawPixelText("SHH", x - 12, y - 34, "#ff35d4");
     px(x - 86, y + 72, 172, 8, "rgba(255,53,212,0.25)");
     px(x + 58, y + 34, 24, 6, "#61fff4");
+  }
+  if (activity === "highFive" || activity === "highFiveJump" || activity === "highFiveFlash") {
+    drawPixelText("HIGH5", x - 22, y - 34, "#ffe66a");
+    px(x - 72, y + 26, 16, 12, "#82ff8f");
+    px(x - 58, y + 22, 6, 20, "#82ff8f");
+    px(x + 54, y + 24, 18, 12, "#61fff4");
+    px(x + 50, y + 20, 6, 20, "#61fff4");
+    if (activity === "highFiveFlash") {
+      px(x - 28, y + 10, 56, 4, "rgba(255,230,106,0.62)");
+      px(x - 4, y + 0, 8, 24, "rgba(255,230,106,0.52)");
+    }
+  }
+  if (activity === "sing" || activity === "singPulse" || activity === "singSolo") {
+    drawPixelText(activity === "singSolo" ? "SOLO" : "SING", x - 18, y - 34, "#ffb8ec");
+    drawPixelText("♪", x - 70, y + 12, "#ffb8ec");
+    drawPixelText("♫", x + 62, y + 8, "#61fff4");
+    drawPixelText("♪", x + 42, y - 8, "#ffe66a");
+    if (activity === "singPulse") {
+      px(x - 82, y + 54, 18, 3, "#ffb8ec");
+      px(x + 64, y + 54, 18, 3, "#61fff4");
+    }
   }
   if (activity === "photoPose" || activity === "photoFlash" || activity === "photoHeart") {
     drawPixelText(activity === "photoFlash" ? "FLASH" : "PHOTO", x - 22, y - 34, "#ecfbff");
@@ -4337,16 +4756,40 @@ function endQuickBarHover() {
 }
 
 function handleQuickBarClick(event) {
-  const button = event.target.closest("[data-pet-command]");
-  if (!button || button.hidden || button.disabled) return;
+  const commandButton = event.target.closest("[data-pet-command]");
+  if (commandButton && !commandButton.hidden && !commandButton.disabled) {
+    event.preventDefault();
+    event.stopPropagation();
+    hoverState.barVisibleMs = 1800;
+    const command = commandButton.dataset.petCommand;
+    const value = commandButton.dataset.petValue;
+    if (quickBarState.activeCat !== "mood") {
+      quickBarState.activeCat = "";
+      quickBarState.renderedCat = "";
+    }
+    runDesktopCommand(command, value);
+    renderQuickBar();
+    return;
+  }
+
+  const categoryButton = event.target.closest("[data-quick-cat]");
+  if (!categoryButton || categoryButton.hidden || categoryButton.disabled) return;
   event.preventDefault();
   event.stopPropagation();
-  hoverState.barVisibleMs = 1600;
-  runDesktopCommand(button.dataset.petCommand, button.dataset.petValue);
+  hoverState.barVisibleMs = 1800;
+  selectQuickBarCategory(categoryButton.dataset.quickCat, true);
+}
+
+function handleQuickBarPointerOver(event) {
+  const categoryButton = event.target.closest("[data-quick-cat]");
+  if (!categoryButton || categoryButton.hidden || categoryButton.disabled) return;
+  if (categoryButton.dataset.quickCat === "hatch") return;
+  hoverState.barVisibleMs = 1800;
+  selectQuickBarCategory(categoryButton.dataset.quickCat, false);
 }
 
 function recordMouseGesture(event) {
-  if (state.mode !== "hatched" || dragStart || nameEditorState.kind || activityPromptState.open) return;
+  if (state.mode !== "hatched" || dragStart || nameEditorState.kind || activityPromptState.open || todoPanelState.open || journalPanelState.open) return;
   if (mouseGestureState.cooldownMs > 0) return;
 
   const now = performance.now();
@@ -4443,6 +4886,7 @@ function triggerMouseGesture(kind) {
   burst("spark", 5, 120, 78, gesture.color);
   showFeedback(gesture.text, gesture.title, 3800, "mouse");
   say(`${displayName()} ${gesture.text}`, gesture.title);
+  addJournalEntry("motion", gesture.title, gesture.text);
   handleDailyProgress({ type: "mouseGesture", gesture: kind });
   return true;
 }
@@ -4477,6 +4921,7 @@ function triggerDragInteraction(totalX = 0, totalY = 0) {
   burst(interaction.particle || "spark", distance > 120 ? 9 : 6, 120, 80, interaction.color || "#61fff4");
   showFeedback(message, interaction.title, 5200, "drag");
   say(`${displayName()} ${message}`, interaction.title);
+  addJournalEntry("motion", interaction.title, message);
   handleDailyProgress({ type: "dragInteraction", distance: Math.round(distance), direction });
   return true;
 }
@@ -4598,6 +5043,8 @@ function getPublicState() {
         })),
       },
       activityLog: state.memory.activityLog.slice(-8),
+      journalCount: Array.isArray(state.memory.journal) ? state.memory.journal.length : 0,
+      journalPreview: Array.isArray(state.memory.journal) ? state.memory.journal.slice(-5) : [],
       lastInsight: state.memory.lastInsight,
     },
     growth: {
@@ -4622,9 +5069,9 @@ function getPublicState() {
     },
     quickBar: {
       visible: shouldShowQuickBar(),
-      buttons: ui.quickBarButtons
-        .filter((button) => quickBarButtonVisible(button))
-        .map((button) => button.textContent.trim()),
+      activeCat: quickBarState.activeCat,
+      categories: quickBarCategoryLabels(),
+      buttons: quickBarButtonLabels(),
     },
   };
 }
@@ -4663,6 +5110,8 @@ function runDesktopCommand(command, value) {
     tickle: ticklePet,
     snack: snackPet,
     hide: hidePet,
+    highFive: highFivePet,
+    sing: singPet,
     photo: photoPet,
     announceTime: () => announceTime("manual"),
     promptPetName,
@@ -4675,6 +5124,7 @@ function runDesktopCommand(command, value) {
     openTodoPanel: () => openTodoPanel("manual"),
     reviewTodo: () => openTodoPanel("reminder"),
     summarizeTodo: () => summarizeTodo("manual"),
+    openJournalPanel,
   };
 
   if (command === "mood") {
@@ -5032,6 +5482,24 @@ window.force_desktop_pet_quick_bar = () => {
   return JSON.stringify(getPublicState());
 };
 
+window.open_desktop_pet_quick_bar_category = (cat = "care") => {
+  hoverState.over = true;
+  hoverState.barVisibleMs = 1800;
+  hoverState.stillMs = 0;
+  hoverState.show = false;
+  selectQuickBarCategory(String(cat), false);
+  renderDom();
+  render();
+  return JSON.stringify(getPublicState());
+};
+
+window.open_desktop_pet_journal = () => {
+  openJournalPanel();
+  renderDom();
+  render();
+  return JSON.stringify(getPublicState());
+};
+
 window.get_desktop_pet_menu_state = () => JSON.stringify(getMenuState());
 window.run_desktop_pet_command = (command, value) => JSON.stringify(runDesktopCommand(command, value));
 
@@ -5131,8 +5599,14 @@ ui.todoInput?.addEventListener("keydown", (event) => {
     closeTodoPanel();
   }
 });
+ui.journalPanel?.addEventListener("pointerdown", (event) => {
+  event.stopPropagation();
+});
+ui.journalClose?.addEventListener("click", closeJournalPanel);
+ui.journalClear?.addEventListener("click", clearJournalPanel);
 ui.quickBar?.addEventListener("pointerenter", beginQuickBarHover);
 ui.quickBar?.addEventListener("pointerleave", endQuickBarHover);
+ui.quickBar?.addEventListener("pointerover", handleQuickBarPointerOver);
 ui.quickBar?.addEventListener("pointerdown", (event) => {
   event.stopPropagation();
 });

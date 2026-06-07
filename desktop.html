@@ -63,52 +63,39 @@
         </div>
         <button class="todo-panel__close" id="todoClose" type="button">关闭</button>
       </section>
+      <section class="journal-panel is-hidden" id="journalPanel" aria-hidden="true">
+        <h2 class="journal-panel__title">陪伴日记</h2>
+        <p class="journal-panel__body">
+          这里会记录最近的互动、心情和今日进度。
+        </p>
+        <div class="journal-panel__list" id="journalList"></div>
+        <div class="journal-panel__actions">
+          <button type="button" id="journalClear">清空</button>
+          <button type="button" id="journalClose">关闭</button>
+        </div>
+      </section>
       <nav class="quick-bar" id="quickBar" aria-label="快捷互动栏" aria-hidden="true">
-        <section class="quick-bar__group" data-quick-group-mode="egg">
-          <span class="quick-bar__label">孵化</span>
-          <div class="quick-bar__actions">
-            <button type="button" data-pet-command="hatch">孵化</button>
-          </div>
-        </section>
-        <section class="quick-bar__group" data-quick-group-mode="hatched">
-          <span class="quick-bar__label">照顾</span>
-          <div class="quick-bar__actions">
-            <button type="button" data-pet-command="feed">喂食</button>
-            <button type="button" data-pet-command="play">玩耍</button>
-            <button type="button" data-pet-command="pet">摸摸</button>
-            <button type="button" data-pet-command="explore">探险</button>
-            <button type="button" data-pet-command="dance">跳舞</button>
-            <button type="button" data-pet-command="sleep">睡觉</button>
-            <button type="button" data-pet-command="clean">清洁</button>
-            <button type="button" data-pet-command="tickle">挠痒</button>
-            <button type="button" data-pet-command="snack">零食</button>
-            <button type="button" data-pet-command="hide">躲猫</button>
-            <button type="button" data-pet-command="photo">合影</button>
-          </div>
-        </section>
-        <section class="quick-bar__group" data-quick-group-mode="hatched">
-          <span class="quick-bar__label">心情</span>
-          <div class="quick-bar__actions quick-bar__actions--mood">
-            <button type="button" data-pet-command="mood" data-pet-value="happy">开心</button>
-            <button type="button" data-pet-command="mood" data-pet-value="sad">伤心</button>
-            <button type="button" data-pet-command="mood" data-pet-value="anxious">焦虑</button>
-            <button type="button" data-pet-command="mood" data-pet-value="tired">累了</button>
-            <button type="button" data-pet-command="mood" data-pet-value="angry">生气</button>
-            <button type="button" data-pet-command="mood" data-pet-value="bored">无聊</button>
-            <button type="button" data-pet-command="mood" data-pet-value="lonely">孤单</button>
-            <button type="button" data-pet-command="mood" data-pet-value="excited">兴奋</button>
-            <button type="button" data-pet-command="mood" data-pet-value="calm">平静</button>
-            <button type="button" data-pet-command="mood" data-pet-value="stressed">压力</button>
-          </div>
-        </section>
-        <section class="quick-bar__group" data-quick-group-mode="hatched">
-          <span class="quick-bar__label">今日</span>
-          <div class="quick-bar__actions">
-            <button type="button" data-pet-command="openTodoPanel">计划</button>
-            <button type="button" data-pet-command="reviewTodo">反馈</button>
-            <button type="button" data-pet-command="summarizeTodo">总结</button>
-          </div>
-        </section>
+        <div class="quick-bar__sub" id="quickBarSub" aria-label="展开的互动"></div>
+        <div class="quick-bar__cats" id="quickBarCats">
+          <button class="quick-bar__cat" type="button" data-quick-cat="hatch" data-quick-mode="egg">
+            <span class="quick-bar__icon">EGG</span><span>孵化</span>
+          </button>
+          <button class="quick-bar__cat" type="button" data-quick-cat="care" data-quick-mode="hatched">
+            <span class="quick-bar__icon">CARE</span><span>照顾</span>
+          </button>
+          <button class="quick-bar__cat" type="button" data-quick-cat="fun" data-quick-mode="hatched">
+            <span class="quick-bar__icon">PLAY</span><span>玩乐</span>
+          </button>
+          <button class="quick-bar__cat" type="button" data-quick-cat="mood" data-quick-mode="hatched">
+            <span class="quick-bar__icon">MOOD</span><span>心情</span>
+          </button>
+          <button class="quick-bar__cat" type="button" data-quick-cat="todo" data-quick-mode="hatched">
+            <span class="quick-bar__icon">TODO</span><span>今日</span>
+          </button>
+          <button class="quick-bar__cat" type="button" data-quick-cat="more" data-quick-mode="hatched">
+            <span class="quick-bar__icon">MORE</span><span>更多</span>
+          </button>
+        </div>
       </nav>
       <div class="sr-only" id="desktopStatus" aria-live="polite">
         我还是一颗蛋。点击或右键菜单可以孵化。

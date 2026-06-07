@@ -2,6 +2,14 @@
 
 All notable updates for Neon Hatch Pet are tracked here.
 
+## v2.12.0 - Dock Journal And More Play
+
+- Reworked the hover bottom bar into a compact category dock inspired by the reference project: Care, Play, Mood, Today, and More now expand into a scrollable sub-action row.
+- Added a companion journal panel that records recent hatch milestones, care interactions, moods, ToDo progress, check-ins, mouse gestures, drags, and companion-time moments.
+- Added High Five and Sing interactions with randomized animation variants, contextual feedback, right-click entries, daily-task matching, and journal logging.
+- Added bottom-dock access to journal, time announcement, owner call, naming, daily tasks, full menu, and reset through the More category.
+- Added desktop automation hooks for opening quick-bar categories and the journal panel.
+
 ## v2.11.0 - Todo Pro And Play Pack
 
 - Upgraded Today ToDo with editable task rows, drag/drop sorting, up/down ordering buttons, and a live remaining-count summary.
